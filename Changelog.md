@@ -1,0 +1,31 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/) 
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [1.2.0]
+* Remove waterfalled CONSUL_HOST 
+* Add ONAP liscenses
+* Remove references to specific telco and it's IPs in tests
+
+## [1.1.0]
+* Add a healthcheck endpoint
+* Fix a bug where a 404 config not found was being returned as a 500
+
+## [1.0.1]
+* Fix {{}} to resolve to [] instead of whatever is in rels key
+* Remove all impure tests. All tests are now unit tests. 
+
+## [1.0.0]
+* GLORIOUS CHANGE! At some point, CASK fixed a bug where if you sent a configuration JSON to CDAP that contained a value that was not a string, it would blow up. This allows me to remove the endpoint specific to CDAP components so the same endpoint is now used for Docker and CDAP. 
+* Props to Terry Troutman for helping me discover this. 
+* Removes some impure tests. Still some impurity there
+
+## [0.9.0]
+* In addition to the "rels key" a new key was introduced, the "dmaap key". Support replacing dmaap keys assumung the tempalating language "<< >>"
+
+## [0.8.0]
+* Start changelog..
+* Fix a 500 bug where the CBS would return a 500 when a service was in a rels key but that service was not registered in Consul
+* Support a new feature where you can now bind {{x,y,....}} instead of just {{x}}. The return list is all concat together
