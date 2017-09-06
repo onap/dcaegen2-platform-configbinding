@@ -146,7 +146,9 @@ fi
   if [ $MVN_DEPLOYMENT_TYPE == "SNAPSHOT" ]; then
      REPO=$MVN_DOCKERREGISTRY_DAILY
   elif [ $MVN_DEPLOYMENT_TYPE == "STAGING" ]; then
-     REPO=$MVN_DOCKERREGISTRY_RELEASE
+     # there seems to be no staging docker registry?  set to use SNAPSHOT also
+     #REPO=$MVN_DOCKERREGISTRY_RELEASE
+     REPO=$MVN_DOCKERREGISTRY_DAILY
   else 
      echo "Fail to determine DEPLOYMENT_TYPE"
      REPO=$MVN_DOCKERREGISTRY_DAILY
@@ -165,6 +167,18 @@ fi
     [ -z "$PASS" ] && PASS_PROVIDED="<empty>" || PASS_PROVIDED="<password>"
     echo docker login "$REPO" -u "$USER" -p "$PASS_PROVIDED"
     docker login "$REPO" -u "$USER" -p "$PASS"
+
+    
+    if [ $MVN_DEPLOYMENT_TYPE == "SNAPSHOT" ]; then
+      REPO="$REPO/SNAPSHOTS"
+    elif [ $MVN_DEPLOYMENT_TYPE == "STAGING" ]; then
+      # there seems to be no staging docker registry?  set to use SNAPSHOT also
+      #REPO=$MVN_DOCKERREGISTRY_RELEASE
+      REPO="$REPO"
+    else 
+      echo "Fail to determine DEPLOYMENT_TYPE"
+      REPO="$REPO/UNKNOWN"
+    fi
 
     OLDTAG="${LFQI}"
     PUSHTAGS="${REPO}/${IMAGENAME}:${VERSION2}-${TIMESTAMP} ${REPO}/${IMAGENAME}:${VERSION2} ${REPO}/${IMAGENAME}:${VERSION2}-latest"
