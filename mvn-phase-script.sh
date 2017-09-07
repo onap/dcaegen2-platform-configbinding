@@ -24,19 +24,11 @@ echo "running script: [$0] for module [$1] at stage [$2]"
 MVN_PROJECT_MODULEID="$1"
 MVN_PHASE="$2"
 
-echo "MVN_PROJECT_MODULEID is            [$MVN_PROJECT_MODULEID]"
-echo "MVN_PHASE is                       [$MVN_PHASE]"
-echo "MVN_PROJECT_GROUPID is             [$MVN_PROJECT_GROUPID]"
-echo "MVN_PROJECT_ARTIFACTID is          [$MVN_PROJECT_ARTIFACTID]"
-echo "MVN_PROJECT_VERSION is             [$MVN_PROJECT_VERSION]"
-echo "MVN_NEXUSPROXY is                  [$MVN_NEXUSPROXY]"
-echo "MVN_RAWREPO_BASEURL_UPLOAD is      [$MVN_RAWREPO_BASEURL_UPLOAD]"
-echo "MVN_RAWREPO_BASEURL_DOWNLOAD is    [$MVN_RAWREPO_BASEURL_DOWNLOAD]"
-MVN_RAWREPO_HOST=$(echo "$MVN_RAWREPO_BASEURL_UPLOAD" | cut -f3 -d'/' |cut -f1 -d':')
-echo "MVN_RAWREPO_HOST is                [$MVN_RAWREPO_HOST]"
-echo "MVN_RAWREPO_SERVERID is            [$MVN_RAWREPO_SERVERID]"
-echo "MVN_DOCKERREGISTRY_DAILY is        [$MVN_DOCKERREGISTRY_DAILY]"
-echo "MVN_DOCKERREGISTRY_RELEASE is      [$MVN_DOCKERREGISTRY_RELEASE]"
+
+FQDN="${MVN_PROJECT_GROUPID}.${MVN_PROJECT_ARTIFACTID}"
+if [ "$MVN_PROJECT_MODULEID" == "__" ]; then
+  MVN_PROJECT_MODULEID=""
+fi
 
 if [[ "$MVN_PROJECT_VERSION" == *SNAPSHOT ]]; then
   echo "=> for SNAPSHOT artifact build"
@@ -48,11 +40,7 @@ fi
 echo "MVN_DEPLOYMENT_TYPE is             [$DEPLOYMENT_TYPE]"
 
 
-echo "=> Prepare environment "
-#env
-
 TIMESTAMP=$(date +%C%y%m%dT%H%M%S)
-export BUILD_NUMBER="${TIMESTAMP}"
 
 # expected environment variables
 if [ -z "${MVN_NEXUSPROXY}" ]; then
@@ -70,47 +58,29 @@ fi
 # mvn phase in life cycle
 MVN_PHASE="$2"
 
-case $MVN_PHASE in
-clean)
-  echo "==> clean phase script"
-  rm -rf ./venv-tox
-  ;;
-generate-sources)
-  echo "==> generate-sources phase script"
-  ;;
-compile)
-  echo "==> compile phase script"
-  ;;
-test)
-  echo "==> test phase script"
-  virtualenv ./venv-tox
-  source ./venv-tox/bin/activate
-  pip install --upgrade pip
-  pip install --upgrade tox argparse
-  pip freeze
-  cd "$WORKSPACE"/ 
-  tox
-  deactivate
-  echo "==> test phase script done"
-  ;;
-package)
-  echo "==> package phase script"
-  ;;
-install)
-  echo "==> install phase script"
-  ;;
-deploy)
-  echo "==> deploy phase script"
 
-if  false; then
+echo "MVN_PROJECT_MODULEID is            [$MVN_PROJECT_MODULEID]"
+echo "MVN_PHASE is                       [$MVN_PHASE]"
+echo "MVN_PROJECT_GROUPID is             [$MVN_PROJECT_GROUPID]"
+echo "MVN_PROJECT_ARTIFACTID is          [$MVN_PROJECT_ARTIFACTID]"
+echo "MVN_PROJECT_VERSION is             [$MVN_PROJECT_VERSION]"
+echo "MVN_NEXUSPROXY is                  [$MVN_NEXUSPROXY]"
+echo "MVN_RAWREPO_BASEURL_UPLOAD is      [$MVN_RAWREPO_BASEURL_UPLOAD]"
+echo "MVN_RAWREPO_BASEURL_DOWNLOAD is    [$MVN_RAWREPO_BASEURL_DOWNLOAD]"
+MVN_RAWREPO_HOST=$(echo "$MVN_RAWREPO_BASEURL_UPLOAD" | cut -f3 -d'/' |cut -f1 -d':')
+echo "MVN_RAWREPO_HOST is                [$MVN_RAWREPO_HOST]"
+echo "MVN_RAWREPO_SERVERID is            [$MVN_RAWREPO_SERVERID]"
+echo "MVN_DOCKERREGISTRY_DAILY is        [$MVN_DOCKERREGISTRY_DAILY]"
+echo "MVN_DOCKERREGISTRY_RELEASE is      [$MVN_DOCKERREGISTRY_RELEASE]"
+
+expand_templates() 
+{
   # set up env variables, get ready for template resolution
   export ONAPTEMPLATE_RAWREPOURL_org_onap_ccsdk_platform_plugins_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.ccsdk.plugins/releases"
   export ONAPTEMPLATE_RAWREPOURL_org_onap_ccsdk_platform_plugins_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.ccsdk.plugins/snapshots"
   export ONAPTEMPLATE_RAWREPOURL_org_onap_ccsdk_platform_blueprints_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.ccsdk.blueprints/releases"
-  export ONAPTEMPLATE_RAWREPOURL_org_onap_ccsdk_platform_blueprints_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.ccsdk.blueprints/snapshots"
-  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2/releases"
-  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2/snapshots"
-  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_platform_plugins_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2.platform.plugins/releases"
+  export ONAPTEMPLATE_RAWREPOURL_org_onap_ccsdk_platform_blueprints_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.ccsdk.blueprints/snapshots"  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2/releases"
+  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2/snapshots"  export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_platform_plugins_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2.platform.plugins/releases"
   export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_platform_plugins_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2.platform.plugins/snapshots"
   export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_platform_blueprints_releases="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2.platform.blueprints/releases"
   export ONAPTEMPLATE_RAWREPOURL_org_onap_dcaegen2_platform_blueprints_snapshots="$MVN_RAWREPO_BASEURL_DOWNLOAD/org.onap.dcaegen2.platform.blueprints/snapshots"
@@ -151,13 +121,57 @@ if  false; then
     #fi
   done
   echo "====> Done template reolving"
+}
 
 
-  FQDN="${MVN_PROJECT_GROUPID}.${MVN_PROJECT_ARTIFACTID}"
-  if [ "$MVN_PROJECT_MODULEID" == "__" ]; then
-    MVN_PROJECT_MODULEID=""
-  fi
+run_tox_test() 
+{ 
+  set -x
+  CURDIR=$(pwd)
+  TOXINIS=$(find . -name "tox.ini")
+  for TOXINI in "${TOXINIS[@]}"; do
+    DIR=$(echo "$TOXINI" | rev | cut -f2- -d'/' | rev)
+    cd "${CURDIR}/${DIR}"
+    rm -rf ./venv-tox ./.tox
+    virtualenv ./venv-tox
+    source ./venv-tox/bin/activate
+    pip install --upgrade pip
+    pip install --upgrade tox argparse
+    pip freeze
+    tox
+    deactivate
+    rm -rf ./venv-tox ./.tox
+  done
+}
 
+build_wagons() 
+{
+  rm -rf ./*.wgn venv-pkg
+
+  SETUPFILES=$(find . -name "setup.py")
+  for SETUPFILE in $SETUPFILES; do
+    PLUGIN_DIR=$(echo "$SETUPFILE" |rev | cut -f 2- -d '/' |rev)
+    PLUGIN_NAME=$(grep 'name' "$SETUPFILE" | cut -f2 -d'=' | sed 's/[^0-9a-zA-Z\.]*//g')
+    PLUGIN_VERSION=$(grep 'version' "$SETUPFILE" | cut -f2 -d'=' | sed 's/[^0-9\.]*//g')
+
+    echo "In $PLUGIN_DIR, $PLUGIN_NAME, $PLUGIN_VERSION"
+
+    virtualenv ./venv-pkg
+    source ./venv-pkg/bin/activate
+    pip install --upgrade pip
+    pip install wagon
+    wagon create --format tar.gz "$PLUGIN_DIR"
+    deactivate
+    rm -rf venv-pkg
+
+    PKG_FILE_NAMES=( "${PLUGIN_NAME}-${PLUGIN_VERSION}"*.wgn )
+    echo Built package: "${PKG_FILE_NAMES[@]}"
+  done
+}
+
+
+upload_raw_file() 
+{
   # Extract the username and password to the nexus repo from the settings file
   USER=$(xpath -q -e "//servers/server[id='$MVN_RAWREPO_SERVERID']/username/text()" "$SETTINGS_FILE")
   PASS=$(xpath -q -e "//servers/server[id='$MVN_RAWREPO_SERVERID']/password/text()" "$SETTINGS_FILE")
@@ -165,9 +179,19 @@ if  false; then
   echo "machine $MVN_RAWREPO_HOST login $USER password $PASS" > "$NETRC"
 
   REPO="$MVN_RAWREPO_BASEURL_UPLOAD"
-  FQDN="${MVN_PROJECT_GROUPID}.${MVN_PROJECT_ARTIFACTID}"
 
-  OUTPUT_FILES="*.yaml"
+  OUTPUT_FILE=$1
+  EXT=$(echo "$OUTPUT_FILE" | rev |cut -f1 -d '.' |rev)
+  if [ "$EXT" == 'yaml' ]; then
+    OUTPUT_FILE_TYPE='text/x-yaml'
+  elif [ "$EXT" == 'gz' ]; then
+    OUTPUT_FILE_TYPE='application/gzip'
+  elif [ "$EXT" == 'wgn' ]; then
+    OUTPUT_FILE_TYPE='application/gzip'
+  else
+    OUTPUT_FILE_TYPE='application/octet-stream'
+  fi
+
 
   if [ "$MVN_DEPLOYMENT_TYPE" == 'SNAPSHOT' ]; then
     SEND_TO="${REPO}/${FQDN}/snapshots"
@@ -179,14 +203,30 @@ if  false; then
   fi
 
   echo "Sending ${OUTPUT_FILE} to Nexus: ${SEND_TO}"
-  for OUTPUT_FILE in $OUTPUT_FILES; do
-    echo curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" "${SEND_TO}/${OUTPUT_FILE}"
-    curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" "${SEND_TO}/${OUTPUT_FILE}-${MVN_PROJECT_VERSION}-${TIMESTAMP}"
-    curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" "${SEND_TO}/${OUTPUT_FILE}"
+  curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" -X PUT -H "Content-Type: $OUTPUT_FILE_TYPE" "${SEND_TO}/${OUTPUT_FILE}-${MVN_PROJECT_VERSION}-${TIMESTAMP}"
+  curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" -X PUT -H "Content-Type: $OUTPUT_FILE_TYPE" "${SEND_TO}/${OUTPUT_FILE}-${MVN_PROJECT_VERSION}"
+  curl -vkn --netrc-file "${NETRC}" --upload-file "${OUTPUT_FILE}" -X PUT -H "Content-Type: $OUTPUT_FILE_TYPE" "${SEND_TO}/${OUTPUT_FILE}"
+}
+
+
+
+upload_wagons_and_type_yamls()
+{
+  WAGONS=$(ls -1 ./*.wgn)
+  for WAGON in "${WAGONS[@]}" ; do
+    WAGON_NAME=$(echo "$WAGON" | cut -f1 -d '-')
+    WAGON_VERSION=$(echo "$WAGON" | cut -f2 -d '-')
+    WAGON_TYPEFILE=$(grep -rl "$WAGON_NAME" | grep yaml | head -1)
+   
+    upload_raw_file "$WAGON"
+    upload_raw_file "$WAGON_TYPEFILE"
   done
-  # ========================== end of example deploying raw artifact ========================
-fi
-  # ================== example building and deploying docker image ==========================
+}
+
+
+
+build_and_push_docker()
+{
   IMAGENAME="onap/${FQDN}.${MVN_PROJECT_MODULEID}"
   IMAGENAME=$(echo "$IMAGENAME" | sed -e 's/_*$//g' -e 's/\.*$//g')
 
@@ -247,7 +287,40 @@ fi
       OLDTAG="${NEWTAG}"
     done
   fi
-  # ============= end of example building and deploying docker image ========================
+
+}
+
+
+
+
+
+case $MVN_PHASE in
+clean)
+  echo "==> clean phase script"
+  rm -rf ./venv-* ./*.wgn
+  ;;
+generate-sources)
+  echo "==> generate-sources phase script"
+  expand_templates
+  ;;
+compile)
+  echo "==> compile phase script"
+  ;;
+test)
+  echo "==> test phase script"
+  run_tox_test
+  ;;
+package)
+  echo "==> package phase script"
+  build_wagons
+  ;;
+install)
+  echo "==> install phase script"
+  ;;
+deploy)
+  echo "==> deploy phase script"
+  #upload_wagons_and_type_yamls
+  build_and_push_docker
   ;;
 *)
   echo "==> unprocessed phase"
