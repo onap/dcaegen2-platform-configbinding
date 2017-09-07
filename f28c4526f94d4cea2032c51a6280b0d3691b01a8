@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: Tommy Carpenter <tommy@research.att.com>
+Code-Review+2: Tony Hansen <tony@att.com>
+Submitted-by: Tony Hansen <tony@att.com>
+Submitted-at: Thu, 07 Sep 2017 04:07:32 +0000
+Reviewed-on: http://gerrit.onap.org/r/10635
+Project: dcaegen2/platform/configbinding
+Branch: refs/heads/master
