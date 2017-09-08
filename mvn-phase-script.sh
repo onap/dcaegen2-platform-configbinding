@@ -297,7 +297,7 @@ build_and_push_docker()
 case $MVN_PHASE in
 clean)
   echo "==> clean phase script"
-  rm -rf ./venv-* ./*.wgn
+  rm -rf ./venv-*
   ;;
 generate-sources)
   echo "==> generate-sources phase script"
@@ -312,7 +312,6 @@ test)
   ;;
 package)
   echo "==> package phase script"
-  build_wagons
   ;;
 install)
   echo "==> install phase script"
