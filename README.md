@@ -39,12 +39,7 @@ X's configuration:
 }
 ```
 
-# Tests
-Run:
+# Tests And Test Coverage
 ```
-set -x CONSUL_HOST "your_consul_dns_name.somedomain.com"; set -x HOSTNAME "config_binding_service"
-cd tests/
-pytest
+tox -c tox-local.ini
 ```
-
-
