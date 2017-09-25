@@ -33,21 +33,21 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sonar.skip>true</sonar.skip>
+    <!-- sonar -->
+    <sonar.skip>false</sonar.skip>
     <sonar.sources>.</sonar.sources>
-    <!-- customize the SONARQUBE URL -->
-    <!-- sonar.host.url>http://localhost:9000</sonar.host.url -->
-    <!-- below are language dependent -->
-    <!-- for Python -->
-    <sonar.language>py</sonar.language>
-    <sonar.pluginName>Python</sonar.pluginName>
-    <sonar.inclusions>**/*.py</sonar.inclusions>
-    <!-- for JavaScaript -->
-    <!--
-    <sonar.language>js</sonar.language>
-    <sonar.pluginName>JS</sonar.pluginName>
-    <sonar.inclusions>**/*.js</sonar.inclusions>
+    <sonar.junit.reportspath>xunit-reports/xunit-result-configbinding.xml</sonar.junit.reportspath>
+    <!-- 
+         <sonar.python.coverage.reportpath>coverage.xml</sonar.python.coverage.reportpath>
+         see https://docs.sonarqube.org/display/plug/python+coverage+results+import
+         ant pattern describing the path to coverage reports, relative to projects root. leave unset to use the default ("coverage-reports/coverage-*.xml").
     -->
+    <sonar.language>py</sonar.language>
+    <sonar.pluginname>python</sonar.pluginname>
+    <sonar.inclusions>config_binding_service/**.py</sonar.inclusions>
+    <sonar.host.url>http://135.205.228.63:9000</sonar.host.url>
+
+
   </properties>
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
