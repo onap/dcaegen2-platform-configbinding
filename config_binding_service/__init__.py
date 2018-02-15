@@ -1,14 +1,14 @@
 # ============LICENSE_START=======================================================
 # org.onap.dcae
 # ================================================================================
-# Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+
 import os
 import logging
 
@@ -45,8 +46,9 @@ def get_consul_uri():
     if "CONSUL_HOST" in os.environ:
         # WARNING! TODO! Currently the env file does not include the port.
         # But some other people think that the port should be a part of that.
-        # For now, I'm hardcoding 8500 until this gets resolved. 
+        # For now, I'm hardcoding 8500 until this gets resolved.
         return "http://{0}:{1}".format(os.environ["CONSUL_HOST"], 8500)
     else:
         raise BadEnviornmentENVNotFound("CONSUL_HOST")
+
 
