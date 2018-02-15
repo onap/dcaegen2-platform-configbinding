@@ -1,14 +1,14 @@
 # ============LICENSE_START=======================================================
 # org.onap.dcae
 # ================================================================================
-# Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,16 +17,46 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+
 from config_binding_service import client, get_consul_uri, get_logger
 import requests
 from flask import request,  Response
 import json
 
+_logger = get_logger(__name__)
+
+def dtievents(service_component_name):
+    try:
+        dti = client.resolve_DTI(service_component_name)
+        return Response(response=json.dumps(dti),
+                        status=200,
+                        mimetype="application/json")
+    except client.CantGetConfig as e:
+        return Response(status=e.code,
+                        response=e.response)
+    except Exception as e:
+        _logger.error(e)
+        return Response(response="Unknown error:  please report",
+                        status=500)
+
+def policies(service_component_name):
+    try:
+        dti = client.resolve_policies(service_component_name)
+        return Response(response=json.dumps(dti),
+                        status=200,
+                        mimetype="application/json")
+    except client.CantGetConfig as e:
+        return Response(status=e.code,
+                        response=e.response)
+    except Exception as e:
+        _logger.error(e)
+        return Response(response="Unknown error:  please report",
+                        status=500)
 def bind_config_for_scn(service_component_name):
     try:
         bound = client.resolve(service_component_name)
         return Response(response=json.dumps(bound),
-                       status=200, 
+                       status=200,
                        mimetype="application/json")
     except client.CantGetConfig as e:
         return Response(status=e.code,

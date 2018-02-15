@@ -1,14 +1,14 @@
 # ============LICENSE_START=======================================================
 # org.onap.dcae
 # ================================================================================
-# Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,9 +17,12 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
-from config_binding_service import client
+
+from config_binding_service import client, controller
 import pytest
 import json
+from requests.exceptions import HTTPError, RequestException
+from requests import Response
 
 def monkeyed_get_connection_info_from_consul(service_component_name):
     #shared monkeypatch. probably somewhat lazy because the function htis patches can be broken up.
@@ -37,6 +40,46 @@ def monkeyed_get_connection_info_from_consul(service_component_name):
         broker_ip = '1.1.1.1'
         broker_port = 444
         return "http://{0}:{1}/application/{2}".format(broker_ip, broker_port, service_component_name)
+
+class FakeResponse():
+    def __init__(self, status_code, text):
+        self.text = text
+        self.status_code = status_code
+
+def monkeyed_consul_get_key(k):
+    if k == "dti_exists_test:dti":
+        return {"foo" : "bar"}
+    elif k == "dti_NOTexists_test:dti":
+        raise HTTPError(response = FakeResponse(text= "", status_code = 404))
+    elif k == "policies_exists_test:policies":
+        return {"foo2" : "bar2"}
+    elif k == "policies_NOTexists_test:policies":
+        raise HTTPError(response = FakeResponse(text= "", status_code = 404))
+
+def test_dti_policies(monkeypatch):
+    monkeypatch.setattr('config_binding_service.client._consul_get_key', monkeyed_consul_get_key)
+
+    assert client.resolve_DTI("dti_exists_test") == {"foo" : "bar"}
+    with pytest.raises(client.CantGetConfig):
+        client.resolve_DTI("dti_NOTexists_test")
+
+    R = controller.dtievents("dti_exists_test")
+    assert(json.loads(R.data) == {"foo" : "bar"})
+    assert(R.status_code == 200)
+
+    R = controller.dtievents("dti_NOTexists_test")
+    assert(R.status_code == 404)
+
+    assert client.resolve_policies("policies_exists_test") == {"foo2" : "bar2"}
+    with pytest.raises(client.CantGetConfig):
+        client.resolve_policies("policies_NOTexists_test")
+
+    R = controller.policies("policies_exists_test")
+    assert(json.loads(R.data) == {"foo2" : "bar2"})
+    assert(R.status_code == 200)
+
+    R = controller.policies("policies_NOTexists_test")
+    assert(R.status_code == 404)
 
 def test_bad_config_http():
     test_config = {'yeahhhhh' : "{{}}"}
@@ -56,6 +99,19 @@ def test_config(monkeypatch):
     test_bind_1 = client.resolve_override(test_config, test_rels)
     assert test_bind_1 == {'autoderegisterafter': '10m', 'cdap_to_manage': {'some_nested_thing': ['666.666.666.666:666']}, 'bindingttw': 5, 'hcinterval': '5s'}
 
+def test_config_with_list(monkeypatch):
+    monkeypatch.setattr('config_binding_service.client._get_connection_info_from_consul', monkeyed_get_connection_info_from_consul)
+    test_config_1 = {"dcae_target_type": ["vhss-ems", "pcrf-oam"], "downstream-laika": "{{ laika }}", "some-param": "Lorem ipsum dolor sit amet"}
+    test_rels_1 = ["3df5292249ae4a949f173063617cea8d_docker-snmp-polling-firstnet-m"]
+    test_bind_1 = client.resolve_override(test_config_1, test_rels_1, {})
+    assert(test_bind_1 == {'dcae_target_type': ['vhss-ems', 'pcrf-oam'], 'downstream-laika': [], 'some-param': 'Lorem ipsum dolor sit amet'})
+
+    test_config_2 = {"foo" : ["{{cdap}}", "notouching", "<<yo>>"]}
+    test_rels_2 = ["cdap"]
+    test_dmaap_2={"yo" : "im here"}
+    test_bind_2 = client.resolve_override(test_config_2, test_rels_2, test_dmaap_2)
+    assert(test_bind_2 == {"foo" : [['666.666.666.666:666'], "notouching", "im here"]})
+
 def test_non_existent(monkeypatch):
     #test a valid config-rels but the key is not in Consul
     monkeypatch.setattr('config_binding_service.client._get_connection_info_from_consul', monkeyed_get_connection_info_from_consul)
@@ -68,7 +124,7 @@ def test_cdap(monkeypatch):
     #user override to test CDAP functionality
     monkeypatch.setattr('config_binding_service.client._get_connection_info_from_consul', monkeyed_get_connection_info_from_consul)
     test_rels = ["testing_alpha.somedomain.com", "testing_bravo.somedomain.com", "testing_charlie.somedomain.com", "testing_charlie.somedomain.com", "cdap"]
-    test_config = { "streams_publishes" : "{{alpha}}", 
+    test_config = { "streams_publishes" : "{{alpha}}",
                     "services_calls" : [{"somekey" : "{{charlie}}"}], #should be dumped
                     "cdap_to_manage": {'some_nested_thing' : "{{cdap}}"} #no dumps
                   }
@@ -98,7 +154,7 @@ def test_multiple_service_types(monkeypatch):
     config2 = {"two there one not exist" : "{{alpha,bravo,notexist}}"}
     test_bind_2 = client.resolve_override(config2, test_rels)
     assert(test_bind_2 == {"two there one not exist" : ['6.6.6.6:666', '7.7.7.7:777']})
-    
+
     #test 3: two resolve, one is in rels key but not registered
     config3 = {"two there one unregistered" : "{{alpha,bravo,unregistered}}"}
     test_rels3 =  ["testing_alpha.somedomain.com", "testing_bravo.somedomain.com", "unregistered.somedomain.com"]
@@ -114,7 +170,7 @@ def test_dmaap(monkeypatch):
     #matches
     test_bind_2 = client.resolve_override(config, dmaap={"XXX" : "ABSOLVEME"})
     assert(test_bind_2 == {"TODAY IS YOUR LUCKY DAY" : "ABSOLVEME"})
-    
+
 
 def test_both(monkeypatch):
     #test rels and http

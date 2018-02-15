@@ -37,7 +37,7 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
     <sonar.skip>false</sonar.skip>
     <sonar.sources>.</sonar.sources>
     <sonar.junit.reportspath>xunit-reports/xunit-result-configbinding.xml</sonar.junit.reportspath>
-    <!-- 
+    <!--
          <sonar.python.coverage.reportpath>coverage.xml</sonar.python.coverage.reportpath>
          see https://docs.sonarqube.org/display/plug/python+coverage+results+import
          ant pattern describing the path to coverage reports, relative to projects root. leave unset to use the default ("coverage-reports/coverage-*.xml").
@@ -111,7 +111,7 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
             </execution>
           </executions>
         </plugin>
-        <!-- maven-install-plugin is called during "install" phase by default behavior.  it tries to copy stuff under 
+        <!-- maven-install-plugin is called during "install" phase by default behavior.  it tries to copy stuff under
        target dir to ~/.m2.  we do not need it -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

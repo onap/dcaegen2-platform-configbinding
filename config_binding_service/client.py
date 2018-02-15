@@ -1,14 +1,14 @@
 # ============LICENSE_START=======================================================
 # org.onap.dcae
 # ================================================================================
-# Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,6 +17,7 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+
 import re
 import requests
 import copy
@@ -44,7 +45,7 @@ class CantGetConfig(Exception):
 ###
 def _consul_get_key(key):
     """
-    Try to fetch a key from Consul. 
+    Try to fetch a key from Consul.
     No error checking here, let caller deal with it
     """
     _logger.info("Fetching {0}".format(key))
@@ -78,7 +79,7 @@ def _get_connection_info_from_consul(service_component_name):
     TODO: currently assumes there is only one service
 
     TODO: WARNING: FIXTHIS: CALLINTHENATIONALARMY:
-    This tries to determine that a service_component_name is a cdap application by inspecting service_component_name and name munging. However, this would force all CDAP applications to have cdap_app in their name. A much better way to do this is to do some kind of catalog_lookup here, OR MAYBE change this API so that the component_type is passed in somehow. THis is a gaping TODO. 
+    This tries to determine that a service_component_name is a cdap application by inspecting service_component_name and name munging. However, this would force all CDAP applications to have cdap_app in their name. A much better way to do this is to do some kind of catalog_lookup here, OR MAYBE change this API so that the component_type is passed in somehow. THis is a gaping TODO.
     """
     _logger.info("Retrieving connection information for {0}".format(service_component_name))
     res = requests.get("{0}/v1/catalog/service/{1}".format(CONSUL, service_component_name))
@@ -87,7 +88,7 @@ def _get_connection_info_from_consul(service_component_name):
     if services == []:
         _logger.info("Warning: config and rels keys were both valid, but there is no component named {0} registered in Consul!".format(service_component_name))
         return None #later will get filtered out
-    else: 
+    else:
         ip  = services[0]["ServiceAddress"]
         port = services[0]["ServicePort"]
         if "cdap_app" in service_component_name:
@@ -100,11 +101,11 @@ def _get_connection_info_from_consul(service_component_name):
             return { key: details[key] for key in ["connectionurl", "serviceendpoints"] }
         else:
             return "{0}:{1}".format(ip, port)
-    
+
 def _replace_rels_template(rels, template_identifier):
     """
     The magic. Replaces a template identifier {{...}} with the entrie(s) from the rels keys
-    NOTE: There was a discussion over whether the CBS should treat {{}} as invalid. Mike asked that 
+    NOTE: There was a discussion over whether the CBS should treat {{}} as invalid. Mike asked that
     it resolve to the empty list. So, it does resolve it to empty list.
     """
     returnl = []
@@ -125,7 +126,7 @@ def _replace_value(v, rels, dmaap):
     """
     Takes a value v that was some value in the templatized configuration, determines whether it needs replacement (either {{}} or <<>>), and if so, replaces it.
     Otherwise just returns v
-    
+
     implementation notes:
     - the split below sees if we have v = x,y,z... so we can support {{x,y,z,....}}
     - the lambda is because we can't fold operators in Python, wanted fold(+, L) where + when applied to lists in python is list concatenation
@@ -150,16 +151,24 @@ def _replace_value(v, rels, dmaap):
     return v #was not a match or was not a string, return value as is
 
 def _recurse(config, rels, dmaap):
-    for key in config:
-        v = config[key]
-        if isinstance(v, list):
-            replacement = [_recurse(item, rels, dmaap) for item in v]
-        elif isinstance(v,dict):
-            replacement = _recurse(v, rels, dmaap)
-        else:
-            replacement = _replace_value(config[key], rels, dmaap)
-        config[key] = replacement
-    return config
+    """
+    Recurse throug a configuration, or recursively a sub elemebt of it.
+    If it's a dict: recurse over all the values
+    If it's a list: recurse over all the values
+    If it's a string: return the replacement
+    If none of the above, just return the item.
+    """
+    if isinstance(config, list):
+        return [_recurse(item, rels, dmaap) for item in config]
+    elif isinstance(config,dict):
+        for key in config:
+            config[key] = _recurse(config[key], rels, dmaap)
+        return config
+    elif isinstance(config, six.string_types):
+        return _replace_value(config, rels, dmaap)
+    else:
+        #not a dict, not a list, not a string, nothing to do.
+        return config
 
 #########
 # PUBLIC API
@@ -179,3 +188,19 @@ def resolve_override(config, rels=[], dmaap={}):
     """
     #use deepcopy to make sure that config is not touched
     return _recurse(copy.deepcopy(config), rels, dmaap)
+
+def resolve_DTI(service_component_name):
+    try:
+        config = _consul_get_key("{}:dti".format(service_component_name))
+    except requests.exceptions.HTTPError as e:
+        #might be a 404, or could be not even able to reach consul (503?), bubble up the requests error
+        raise CantGetConfig(e.response.status_code, e.response.text)
+    return config
+
+def resolve_policies(service_component_name):
+    try:
+        config = _consul_get_key("{}:policies".format(service_component_name))
+    except requests.exceptions.HTTPError as e:
+        #might be a 404, or could be not even able to reach consul (503?), bubble up the requests error
+        raise CantGetConfig(e.response.status_code, e.response.text)
+    return config
