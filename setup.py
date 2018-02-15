@@ -1,14 +1,14 @@
 # ============LICENSE_START=======================================================
 # org.onap.dcae
 # ================================================================================
-# Copyright (c) 2017 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
-#      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,24 +17,22 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+
 import os
 from setuptools import setup, find_packages
 from pip.req import parse_requirements
 from pip.download import PipSession
 
-import pip
-pip.main(['install','-r','requirements.txt'])
-
 setup(
     name='config_binding_service',
-    version='1.2.0',
+    version='1.3.0',
     packages=find_packages(),
     author = "Tommy Carpenter",
-    author_email = "tommy at research dot a t t dot com",
+    author_email = "tommy@research.att.com",
     description='Service to fetch and bind configurations',
     license = "",
     keywords = "",
-    url = "ONAP URL TBD",
+    url = "https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
     zip_safe=False,
     scripts = ["bin/run.py"]
 )

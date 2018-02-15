@@ -7,6 +7,7 @@ ADD . /tmp
 RUN pip install --upgrade pip 
 #do the install
 WORKDIR /tmp
+RUN pip install -r requirements.txt
 RUN pip install -e .
 
 EXPOSE 10000
