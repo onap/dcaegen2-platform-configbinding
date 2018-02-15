@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_90fab473",
+        "filename": "bin/run.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "should be removed",
+      "range": {
+        "startLine": 4,
+        "startChar": 2,
+        "endLine": 4,
+        "endChar": 15
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_70eda8b6",
+        "filename": "config_binding_service/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "to be removed",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_102ea4fb",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "to be removed",
+      "range": {
+        "startLine": 1,
+        "startChar": 19,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_3033a064",
+        "filename": "config_binding_service/controller.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "to be removed",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_50f0ac90",
+        "filename": "setup.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "to be removed",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_b0f7b08a",
+        "filename": "tests/test_binding.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T20:33:23Z",
+      "side": 1,
+      "message": "to be removed",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 3,
+        "endChar": 1
+      },
+      "revId": "857c41af07fd88b50c2e960071611f425268e486",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
