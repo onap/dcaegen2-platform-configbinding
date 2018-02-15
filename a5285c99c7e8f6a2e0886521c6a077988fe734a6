@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_103a2499",
+        "filename": "pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-02-15T18:30:00Z",
+      "side": 1,
+      "message": "change it 1.2.0",
+      "range": {
+        "startLine": 26,
+        "startChar": 13,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "a5285c99c7e8f6a2e0886521c6a077988fe734a6",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
