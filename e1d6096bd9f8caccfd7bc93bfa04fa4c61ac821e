@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_b0949043",
+        "filename": "bin/run.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "since this file existed in 2017, the date needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_509d0c65",
+        "filename": "config_binding_service/__init__.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_709a886f",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_30908049",
+        "filename": "config_binding_service/controller.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_108b0420",
+        "filename": "config_binding_service/swagger/swagger.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_f0853807",
+        "filename": "setup.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_907e3418",
+        "filename": "tests/test_binding.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-02-15T19:42:57Z",
+      "side": 1,
+      "message": "this needs to say 2017-2018",
+      "revId": "e1d6096bd9f8caccfd7bc93bfa04fa4c61ac821e",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
