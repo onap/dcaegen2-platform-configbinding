@@ -1,6 +1,4 @@
 # ============LICENSE_START=======================================================
-# org.onap.dcae
-# ================================================================================
 # Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +23,7 @@ from pip.download import PipSession
 
 setup(
     name='config_binding_service',
-    version='1.3.0',
+    version='1.3.1',
     packages=find_packages(),
     author = "Tommy Carpenter",
     author_email = "tommy@research.att.com",

@@ -1,6 +1,4 @@
 # ============LICENSE_START=======================================================
-# org.onap.dcae
-# ================================================================================
 # Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,11 +53,8 @@ def _consul_get_key(key):
     return json.loads(base64.b64decode(D["Value"]).decode("utf-8"))
 
 def _get_config_rels_dmaap(service_component_name):
-    try:
-        config = _consul_get_key(service_component_name) #not ok if no config
-    except requests.exceptions.HTTPError as e:
-        #might be a 404, or could be not even able to reach consul (503?), bubble up the requests error
-        raise CantGetConfig(e.response.status_code, e.response.text)
+    #this one is critical, if we hit an error, blow up and raise to the caller
+    config = _consul_get_key(service_component_name) #not ok if no config
 
     rels = []
     dmaap = {}
@@ -177,7 +172,10 @@ def resolve(service_component_name):
     """
     Return the bound config of service_component_name
     """
-    config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
+    try:
+        config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
+    except requests.exceptions.HTTPError as e:
+        raise CantGetConfig(e.response.status_code, e.response.text)
     _logger.info("Fetching {0}: config={1}, rels={2}".format(service_component_name, json.dumps(config), rels))
     return _recurse(config, rels, dmaap)
 
