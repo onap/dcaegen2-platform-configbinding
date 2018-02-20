@@ -20,14 +20,14 @@
 ---
 swagger: "2.0"
 info:
-  version: "1.3.1"
+  version: "2.0.0"
   title: "Config Binding Service"
 paths:
   /service_component/{service_component_name}:
     parameters:
       - name: "service_component_name"
         in: "path"
-        description: "Service Component Name. service_component_name and  service_component_name:rels must be keys in consul."
+        description: "Service Component Name. service_component_name must be a key in consul."
         required: true
         type: "string"
     get:
@@ -40,40 +40,25 @@ paths:
             type: object
         404:
           description: there is no configuration in Consul for this component
-  /dti/{service_component_name}:
+
+  /service_component_all/{service_component_name}:
     parameters:
       - name: "service_component_name"
         in: "path"
-        description: "Service Component Name. service_component_name:dti must be a key in consul."
+        description: "Service Component Name. service_component_name must be a key in consul."
         required: true
         type: "string"
     get:
-      description: "Returns as JSON the value for service_component_name:dti"
-      operationId: "config_binding_service.controller.dtievents"
+      description: "Binds the configuration for service_component_name and returns the bound configuration, policies, and any other keys that are in Consul"
+      operationId: "config_binding_service.controller.bind_all"
       responses:
         200:
-          description: OK; the KV value is returned as an object
+          description: "OK; returns {config : ..., policies : ....., k : ...} for all other k in Consul"
           schema:
             type: object
         404:
-          description: there is no configuration in Consul for this component's DTI events
-  /policies/{service_component_name}:
-    parameters:
-      - name: "service_component_name"
-        in: "path"
-        description: "Service Component Name. service_component_name:policies must be a key in consul."
-        required: true
-        type: "string"
-    get:
-      description: "Returns as JSON the value for service_component_name:policies"
-      operationId: "config_binding_service.controller.policies"
-      responses:
-        200:
-          description: OK; the KV value is returned as an object
-          schema:
-            type: object
-        404:
-          description: there is no configuration in Consul for this component's policies
+          description: there is no configuration in Consul for this component
+
   /healthcheck:
     get:
       description: "This is the  health check endpoint. If this returns a 200, the server is alive and consul can be reached. If not a 200, either dead, or no connection to consul"

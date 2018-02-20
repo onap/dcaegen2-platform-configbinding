@@ -41,31 +41,45 @@ class CantGetConfig(Exception):
 ###
 # Private Functions
 ###
-def _consul_get_key(key):
+def _consul_get_all_as_transaction(service_component_name):
     """
-    Try to fetch a key from Consul.
-    No error checking here, let caller deal with it
+    Use Consul's transaction API to get all keys of the form service_component_name:*
+    Return a dict with all the values decoded
     """
-    _logger.info("Fetching {0}".format(key))
-    response = requests.get("{0}/v1/kv/{1}".format(CONSUL, key))
-    response.raise_for_status()
-    D = json.loads(response.text)[0]
-    return json.loads(base64.b64decode(D["Value"]).decode("utf-8"))
+    payload = [
+        {
+            "KV": {
+                "Verb": "get-tree",
+                "Key": service_component_name,
+            }
+        }]
+
+    response = requests.put("{0}/v1/txn".format(CONSUL),
+                     json = payload)
+
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise CantGetConfig(e.response.status_code, e.response.text)
+
+    res = json.loads(response.text)['Results']
+
+    new_res = {}
+    for r in res:
+        key = r["KV"]["Key"]
+        val = r["KV"]["Value"]
+        new_res[key] = json.loads(base64.b64decode(r["KV"]["Value"]).decode("utf-8"))
+
+    if service_component_name not in new_res:
+        raise CantGetConfig(404, "")
+
+    return new_res
 
 def _get_config_rels_dmaap(service_component_name):
-    #this one is critical, if we hit an error, blow up and raise to the caller
-    config = _consul_get_key(service_component_name) #not ok if no config
-
-    rels = []
-    dmaap = {}
-    try: #Not all nodes have relationships, so catch the error here and return [] if so
-        rels = _consul_get_key("{0}:rel".format(service_component_name))
-    except requests.exceptions.HTTPError: #ok if no rels key, might just have dmaap key
-        pass
-    try:
-        dmaap = _consul_get_key("{0}:dmaap".format(service_component_name))
-    except requests.exceptions.HTTPError: #ok if no dmaap key
-        pass
+    allk = _consul_get_all_as_transaction(service_component_name)
+    config = allk[service_component_name]
+    rels = allk.get(service_component_name + ":rels", [])
+    dmaap = allk.get(service_component_name + ":dmaap", {})
     return config, rels, dmaap
 
 def _get_connection_info_from_consul(service_component_name):
@@ -172,11 +186,7 @@ def resolve(service_component_name):
     """
     Return the bound config of service_component_name
     """
-    try:
-        config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
-    except requests.exceptions.HTTPError as e:
-        raise CantGetConfig(e.response.status_code, e.response.text)
-    _logger.info("Fetching {0}: config={1}, rels={2}".format(service_component_name, json.dumps(config), rels))
+    config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
     return _recurse(config, rels, dmaap)
 
 def resolve_override(config, rels=[], dmaap={}):
@@ -187,18 +197,33 @@ def resolve_override(config, rels=[], dmaap={}):
     #use deepcopy to make sure that config is not touched
     return _recurse(copy.deepcopy(config), rels, dmaap)
 
-def resolve_DTI(service_component_name):
-    try:
-        config = _consul_get_key("{}:dti".format(service_component_name))
-    except requests.exceptions.HTTPError as e:
-        #might be a 404, or could be not even able to reach consul (503?), bubble up the requests error
-        raise CantGetConfig(e.response.status_code, e.response.text)
-    return config
+def resolve_all(service_component_name):
+    """
+    Return config, DTI, and policies, and any other key (other than :dmaap and :rels)
+    """
+    allk = _consul_get_all_as_transaction(service_component_name)
+    returnk = {}
 
-def resolve_policies(service_component_name):
-    try:
-        config = _consul_get_key("{}:policies".format(service_component_name))
-    except requests.exceptions.HTTPError as e:
-        #might be a 404, or could be not even able to reach consul (503?), bubble up the requests error
-        raise CantGetConfig(e.response.status_code, e.response.text)
-    return config
+    #replace the config with the resolved config
+    returnk["config"] = resolve(service_component_name)
+
+    #concatenate the items
+    for k in allk:
+        if "policies" in k:
+            if "policies" not in returnk:
+                returnk["policies"] = {}
+                returnk["policies"]["event"] = {}
+                returnk["policies"]["items"] = []
+
+            if k.endswith(":policies/event"):
+                returnk["policies"]["event"] = allk[k]
+            elif ":policies/items" in k:
+                returnk["policies"]["items"].append(allk[k])
+        elif k == service_component_name or k.endswith(":rels") or k.endswith(":dmaap"):
+            pass
+        else:
+            suffix = k.split(":")[1] #this would blow up if you had a key in consul without a : but this shouldnt happen
+            returnk[suffix] = allk[k]
+
+    return returnk
+
