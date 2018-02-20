@@ -23,7 +23,7 @@ from pip.download import PipSession
 
 setup(
     name='config_binding_service',
-    version='1.3.1',
+    version='2.0.0',
     packages=find_packages(),
     author = "Tommy Carpenter",
     author_email = "tommy@research.att.com",

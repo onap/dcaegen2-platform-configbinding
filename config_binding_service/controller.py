@@ -23,10 +23,10 @@ import json
 
 _logger = get_logger(__name__)
 
-def dtievents(service_component_name):
+def bind_all(service_component_name):
     try:
-        dti = client.resolve_DTI(service_component_name)
-        return Response(response=json.dumps(dti),
+        allk = client.resolve_all(service_component_name)
+        return Response(response=json.dumps(allk),
                         status=200,
                         mimetype="application/json")
     except client.CantGetConfig as e:
@@ -37,19 +37,6 @@ def dtievents(service_component_name):
         return Response(response="Unknown error:  please report",
                         status=500)
 
-def policies(service_component_name):
-    try:
-        dti = client.resolve_policies(service_component_name)
-        return Response(response=json.dumps(dti),
-                        status=200,
-                        mimetype="application/json")
-    except client.CantGetConfig as e:
-        return Response(status=e.code,
-                        response=e.response)
-    except Exception as e:
-        _logger.error(e)
-        return Response(response="Unknown error:  please report",
-                        status=500)
 def bind_config_for_scn(service_component_name):
     try:
         bound = client.resolve(service_component_name)
