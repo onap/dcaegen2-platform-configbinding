@@ -23,8 +23,8 @@ from pip.download import PipSession
 
 setup(
     name='config_binding_service',
-    version='1.3.1',
-    packages=find_packages(),
+    version='1.3.2',
+    packages=find_packages(exclude=["tests.*", "tests"]),
     author = "Tommy Carpenter",
     author_email = "tommy@research.att.com",
     description='Service to fetch and bind configurations',
