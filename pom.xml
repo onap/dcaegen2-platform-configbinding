@@ -36,18 +36,9 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
     <!-- sonar -->
     <sonar.skip>false</sonar.skip>
     <sonar.sources>.</sonar.sources>
-    <sonar.junit.reportspath>xunit-reports/xunit-result-configbinding.xml</sonar.junit.reportspath>
-    <!--
-         <sonar.python.coverage.reportpath>coverage.xml</sonar.python.coverage.reportpath>
-         see https://docs.sonarqube.org/display/plug/python+coverage+results+import
-         ant pattern describing the path to coverage reports, relative to projects root. leave unset to use the default ("coverage-reports/coverage-*.xml").
-    -->
     <sonar.language>py</sonar.language>
     <sonar.pluginname>python</sonar.pluginname>
     <sonar.inclusions>config_binding_service/**.py</sonar.inclusions>
-    <sonar.host.url>http://135.205.228.63:9000</sonar.host.url>
-
-
   </properties>
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
