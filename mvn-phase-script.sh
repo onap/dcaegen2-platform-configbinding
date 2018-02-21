@@ -19,8 +19,11 @@
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
 
+set -e
+
 echo "running script: [$0] for module [$1] at stage [$2]"
 
+export SETTINGS_FILE=${SETTINGSFILE:-$HOME/.m2/settings.xml}
 MVN_PROJECT_MODULEID="$1"
 MVN_PHASE="$2"
 
@@ -99,7 +102,7 @@ expand_templates()
     KEY=$(echo "$TEMPLATE" | cut -f1 -d'=')
     VALUE=$(echo "$TEMPLATE" | cut -f2 -d'=')
     VALUE2=$(echo "$TEMPLATE" | cut -f2 -d'=' |sed 's/\//\\\//g')
-    FILES=$(grep -rl "$KEY")
+    FILES=$(grep -rl "$KEY" .)
 
     # assuming FILES is not longer than 2M bytes, the limit for variable value max size on this VM
     for F in $FILES; do
@@ -114,8 +117,8 @@ expand_templates()
 
     #if [ ! -z "$FILES" ]; then
     #   echo "====> Resolving template $VALUE to value $VALUE"
-    #   #CMD="grep -rl \"$VALUE\" | tr '\n' '\0' | xargs -0 sed -i \"s/{{[[:space:]]*$VALUE[[:space:]]*}}/$VALUE/g\""
-    #   grep -rl "$KEY" | tr '\n' '\0' | xargs -0 sed -i 's/$KEY/$VALUE2/g'
+    #   #CMD="grep -rl \"$VALUE\" . | tr '\n' '\0' | xargs -0 sed -i \"s/{{[[:space:]]*$VALUE[[:space:]]*}}/$VALUE/g\""
+    #   grep -rl "$KEY" | tr '\n' '\0' . | xargs -0 sed -i 's/$KEY/$VALUE2/g'
     #   #echo $CMD
     #   #eval $CMD
     #fi
@@ -216,7 +219,7 @@ upload_wagons_and_type_yamls()
   for WAGON in "${WAGONS[@]}" ; do
     WAGON_NAME=$(echo "$WAGON" | cut -f1 -d '-')
     WAGON_VERSION=$(echo "$WAGON" | cut -f2 -d '-')
-    WAGON_TYPEFILE=$(grep -rl "$WAGON_NAME" | grep yaml | head -1)
+    WAGON_TYPEFILE=$(grep -rl "$WAGON_NAME" . | grep yaml | head -1)
    
     upload_raw_file "$WAGON"
     upload_raw_file "$WAGON_TYPEFILE"
