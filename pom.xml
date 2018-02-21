@@ -33,12 +33,13 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- sonar -->
-    <sonar.skip>false</sonar.skip>
     <sonar.sources>.</sonar.sources>
+    <sonar.junit.reportsPath>xunit-results.xml</sonar.junit.reportsPath>
+    <sonar.python.coverage.reportPath>coverage.xml</sonar.python.coverage.reportPath>
     <sonar.language>py</sonar.language>
     <sonar.pluginname>python</sonar.pluginname>
-    <sonar.inclusions>config_binding_service/**.py</sonar.inclusions>
+    <sonar.inclusions>**/**.py</sonar.inclusions>
+    <sonar.exclusions>tests/*,setup.py</sonar.exclusions>
   </properties>
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
