@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "5a93c517_9ef06268",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T16:31:35Z",
+      "side": 1,
+      "message": "agree - it is outside the scope of this PR. -- no need to fix it here\n \nwe defined the api in pptx that is now shared on wiki https://wiki.onap.org/pages/viewpage.action?pageId\u003d25430241",
+      "parentUuid": "5a93c517_7e86b6dc",
+      "range": {
+        "startLine": 219,
+        "startChar": 4,
+        "endLine": 219,
+        "endChar": 8
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a93c517_5ee5fad9",
         "filename": "config_binding_service/client.py",
         "patchSetId": 1
@@ -154,6 +178,30 @@
       "side": 1,
       "message": "The CBS does not support that case. This method was actually in the prior CBS, and I removed it because the transaction API, but now I\u0027ve added it back. Rels, DMAAP, COnfig, and Policy are all JSONS. We can revisit this later if that is no longer true.",
       "parentUuid": "5a93c517_7eea36ad",
+      "range": {
+        "startLine": 255,
+        "startChar": 11,
+        "endLine": 255,
+        "endChar": 21
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_5ee65ab1",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T16:31:35Z",
+      "side": 1,
+      "message": "well - it will blow out on /policies/\u003cscn\u003e because :policies is a folder or on any other record that is not json\n\nsome defense would be nice to have here",
+      "parentUuid": "5a93c517_fe1ac6c4",
       "range": {
         "startLine": 255,
         "startChar": 11,
