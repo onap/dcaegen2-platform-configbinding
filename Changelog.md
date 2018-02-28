@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.0]
+* Add a generic API for getting arbitrary keys
+* Some PEP8/Pylint compliance
+* Fix SONAR complaints
+
 ## [2.0.0]
 * Remove policy and DTI APIs
 * Add new API that returns Config, Policy, DTI, Everything
