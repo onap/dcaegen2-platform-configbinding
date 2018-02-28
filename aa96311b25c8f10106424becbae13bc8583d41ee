@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_9e14e2a0",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T15:48:50Z",
+      "side": 1,
+      "message": "remove mentioning DTI",
+      "range": {
+        "startLine": 217,
+        "startChar": 19,
+        "endLine": 217,
+        "endChar": 22
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_be199ed8",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T15:48:50Z",
+      "side": 1,
+      "message": "two fields defined in API for *_all are missing here:\n\"timestamp\" : \"2018-02-14T10:30:30.999Z\",  \n\"requestID\": \"3914b74f-a09e-4186-b5a6-fbe934c59c24\"",
+      "range": {
+        "startLine": 219,
+        "startChar": 4,
+        "endLine": 219,
+        "endChar": 8
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_5ee5fad9",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T15:48:50Z",
+      "side": 1,
+      "message": "pylint comment - D is a constant name and it is too short",
+      "range": {
+        "startLine": 254,
+        "startChar": 4,
+        "endLine": 254,
+        "endChar": 5
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a93c517_7eea36ad",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1949
+      },
+      "writtenOn": "2018-02-28T15:48:50Z",
+      "side": 1,
+      "message": "what if the value is not a json ?",
+      "range": {
+        "startLine": 255,
+        "startChar": 11,
+        "endLine": 255,
+        "endChar": 21
+      },
+      "revId": "aa96311b25c8f10106424becbae13bc8583d41ee",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
