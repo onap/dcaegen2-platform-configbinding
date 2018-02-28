@@ -20,7 +20,7 @@
 ---
 swagger: "2.0"
 info:
-  version: "2.0.0"
+  version: "2.1.0"
   title: "Config Binding Service"
 paths:
   /service_component/{service_component_name}:
@@ -58,6 +58,29 @@ paths:
             type: object
         404:
           description: there is no configuration in Consul for this component
+
+  /{key}/{service_component_name}:
+    parameters:
+      - name: "key"
+        in: "path"
+        description: "this endpoint tries to pull service_component_name:key; key is the key after the colon"
+        required: true
+        type: "string"
+      - name: "service_component_name"
+        in: "path"
+        description: "Service Component Name."
+        required: true
+        type: "string"
+    get:
+      description: "this is an endpoint that fetches a generic service_component_name:key out of Consul. The idea is that we don't want to tie components to Consul directly in case we swap out the backend some day, so the CBS abstracts Consul from clients. The structuring and weird collision of this new API with the above is unfortunate but due to legacy concerns."
+      operationId: "config_binding_service.controller.get_key"
+      responses:
+        200:
+          description: "OK; returns service_component_name:key"
+          schema:
+            type: object
+        404:
+          description: key does not exist
 
   /healthcheck:
     get:
