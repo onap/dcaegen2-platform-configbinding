@@ -16,21 +16,19 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
-import os
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
-from pip.download import PipSession
 
 setup(
     name='config_binding_service',
-    version='2.0.0',
+    version='2.1.0',
     packages=find_packages(exclude=["tests.*", "tests"]),
-    author = "Tommy Carpenter",
-    author_email = "tommy@research.att.com",
+    author="Tommy Carpenter",
+    author_email="tommy@research.att.com",
     description='Service to fetch and bind configurations',
-    license = "",
-    keywords = "",
-    url = "https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
+    license="",
+    keywords="",
+    url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
     zip_safe=False,
-    scripts = ["bin/run.py"]
+    scripts=["bin/run.py"],
+    install_requires=["requests", "Flask", "connexion", "six"]
 )
