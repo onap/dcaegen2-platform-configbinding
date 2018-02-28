@@ -17,13 +17,13 @@
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
 import re
-import requests
-import copy
+from functools import partial, reduce
 import base64
+import copy
 import json
+import requests
 import six
 from config_binding_service import get_consul_uri, get_logger
-from functools import partial, reduce
 
 _logger = get_logger(__name__)
 CONSUL = get_consul_uri()
@@ -34,13 +34,31 @@ template_match_dmaap = re.compile("<{2}([^><]*)>{2}")
 ###
 # Cusom Exception
 ###
+
+
 class CantGetConfig(Exception):
+    """
+    Represents an exception where a required key in consul isn't there
+    """
     def __init__(self, code, response):
         self.code = code
         self.response = response
+
+
+class BadRequest(Exception):
+    """
+    Exception to be raised when the user tried to do something they shouldn't
+    """
+    def __init__(self, response):
+        self.code = 400
+        self.response = response
+
+
 ###
 # Private Functions
 ###
+
+
 def _consul_get_all_as_transaction(service_component_name):
     """
     Use Consul's transaction API to get all keys of the form service_component_name:*
@@ -54,26 +72,25 @@ def _consul_get_all_as_transaction(service_component_name):
             }
         }]
 
-    response = requests.put("{0}/v1/txn".format(CONSUL),
-                     json = payload)
+    response = requests.put("{0}/v1/txn".format(CONSUL), json=payload)
 
     try:
         response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        raise CantGetConfig(e.response.status_code, e.response.text)
+    except requests.exceptions.HTTPError as exc:
+        raise CantGetConfig(exc.response.status_code, exc.response.text)
 
-    res = json.loads(response.text)['Results']
+    result = json.loads(response.text)['Results']
 
     new_res = {}
-    for r in res:
-        key = r["KV"]["Key"]
-        val = r["KV"]["Value"]
-        new_res[key] = json.loads(base64.b64decode(r["KV"]["Value"]).decode("utf-8"))
+    for res in result:
+        key = res["KV"]["Key"]
+        new_res[key] = json.loads(base64.b64decode(res["KV"]["Value"]).decode("utf-8"))
 
     if service_component_name not in new_res:
         raise CantGetConfig(404, "")
 
     return new_res
+
 
 def _get_config_rels_dmaap(service_component_name):
     allk = _consul_get_all_as_transaction(service_component_name)
@@ -81,6 +98,7 @@ def _get_config_rels_dmaap(service_component_name):
     rels = allk.get(service_component_name + ":rels", [])
     dmaap = allk.get(service_component_name + ":dmaap", {})
     return config, rels, dmaap
+
 
 def _get_connection_info_from_consul(service_component_name):
     """
@@ -97,19 +115,18 @@ def _get_connection_info_from_consul(service_component_name):
     if services == []:
         _logger.info("Warning: config and rels keys were both valid, but there is no component named {0} registered in Consul!".format(service_component_name))
         return None #later will get filtered out
-    else:
-        ip  = services[0]["ServiceAddress"]
-        port = services[0]["ServicePort"]
-        if "cdap_app" in service_component_name:
-            redirectish_url = "http://{0}:{1}/application/{2}".format(ip, port, service_component_name)
-            _logger.info("component is a CDAP application; trying the broker redirect on {0}".format(redirectish_url))
-            r = requests.get(redirectish_url)
-            r.raise_for_status()
-            details = r.json()
-            # Pick out the details to expose to the component developers. These keys come from the broker API
-            return { key: details[key] for key in ["connectionurl", "serviceendpoints"] }
-        else:
-            return "{0}:{1}".format(ip, port)
+    ip_addr = services[0]["ServiceAddress"]
+    port = services[0]["ServicePort"]
+    if "cdap_app" in service_component_name:
+        redirectish_url = "http://{0}:{1}/application/{2}".format(ip_addr, port, service_component_name)
+        _logger.info("component is a CDAP application; trying the broker redirect on {0}".format(redirectish_url))
+        res = requests.get(redirectish_url)
+        res.raise_for_status()
+        details = res.json()
+        # Pick out the details to expose to the component developers. These keys come from the broker API
+        return {key: details[key] for key in ["connectionurl", "serviceendpoints"]}
+    return "{0}:{1}".format(ip_addr, port)
+
 
 def _replace_rels_template(rels, template_identifier):
     """
@@ -118,11 +135,12 @@ def _replace_rels_template(rels, template_identifier):
     it resolve to the empty list. So, it does resolve it to empty list.
     """
     returnl = []
-    for r in rels:
-        if template_identifier in r and template_identifier is not "":
-            returnl.append(r)
+    for rel in rels:
+        if template_identifier in rel and template_identifier is not "":
+            returnl.append(rel)
     #returnl now contains a list of DNS names (possible empty), now resolve them (or not if they are not regustered)
-    return  list(filter(lambda x: x is not None, map(_get_connection_info_from_consul, returnl)))
+    return list(filter(lambda x: x is not None, map(_get_connection_info_from_consul, returnl)))
+
 
 def _replace_dmaap_template(dmaap, template_identifier):
     """
@@ -130,6 +148,7 @@ def _replace_dmaap_template(dmaap, template_identifier):
     Talked to Mike, default value if key is not found in dmaap key should be {}
     """
     return {} if (template_identifier not in dmaap or template_identifier == "<<>>") else dmaap[template_identifier]
+
 
 def _replace_value(v, rels, dmaap):
     """
@@ -145,7 +164,7 @@ def _replace_value(v, rels, dmaap):
         if match_on_rels:
             template_identifier = match_on_rels.groups()[0].strip() #now holds just x,.. of {{x,...}}
             rtpartial = partial(_replace_rels_template, rels)
-            return reduce(lambda a,b: a+b, map(rtpartial, template_identifier.split(",")), [])
+            return reduce(lambda a, b: a + b, map(rtpartial, template_identifier.split(",")), [])
         match_on_dmaap = re.match(template_match_dmaap, v)
         if match_on_dmaap:
             template_identifier = match_on_dmaap.groups()[0].strip()
@@ -159,6 +178,7 @@ def _replace_value(v, rels, dmaap):
             return _replace_dmaap_template(dmaap, template_identifier)
     return v #was not a match or was not a string, return value as is
 
+
 def _recurse(config, rels, dmaap):
     """
     Recurse throug a configuration, or recursively a sub elemebt of it.
@@ -169,25 +189,28 @@ def _recurse(config, rels, dmaap):
     """
     if isinstance(config, list):
         return [_recurse(item, rels, dmaap) for item in config]
-    elif isinstance(config,dict):
+    if isinstance(config, dict):
         for key in config:
             config[key] = _recurse(config[key], rels, dmaap)
         return config
-    elif isinstance(config, six.string_types):
+    if isinstance(config, six.string_types):
         return _replace_value(config, rels, dmaap)
-    else:
-        #not a dict, not a list, not a string, nothing to do.
-        return config
+    #not a dict, not a list, not a string, nothing to do.
+    return config
+
 
 #########
 # PUBLIC API
 #########
+
+
 def resolve(service_component_name):
     """
     Return the bound config of service_component_name
     """
     config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
     return _recurse(config, rels, dmaap)
+
 
 def resolve_override(config, rels=[], dmaap={}):
     """
@@ -197,9 +220,10 @@ def resolve_override(config, rels=[], dmaap={}):
     #use deepcopy to make sure that config is not touched
     return _recurse(copy.deepcopy(config), rels, dmaap)
 
+
 def resolve_all(service_component_name):
     """
-    Return config, DTI, and policies, and any other key (other than :dmaap and :rels)
+    Return config,  policies, and any other k such that service_component_name:k exists (other than :dmaap and :rels)
     """
     allk = _consul_get_all_as_transaction(service_component_name)
     returnk = {}
@@ -219,11 +243,24 @@ def resolve_all(service_component_name):
                 returnk["policies"]["event"] = allk[k]
             elif ":policies/items" in k:
                 returnk["policies"]["items"].append(allk[k])
-        elif k == service_component_name or k.endswith(":rels") or k.endswith(":dmaap"):
-            pass
         else:
-            suffix = k.split(":")[1] #this would blow up if you had a key in consul without a : but this shouldnt happen
-            returnk[suffix] = allk[k]
+            if not(k == service_component_name or k.endswith(":rels") or k.endswith(":dmaap")):
+                suffix = k.split(":")[1] #this would blow up if you had a key in consul without a : but this shouldnt happen
+                returnk[suffix] = allk[k]
 
     return returnk
 
+
+def get_key(key, service_component_name):
+    """
+    Try to fetch a key k from Consul of the form service_component_name:k
+    """
+    if key == "policies":
+        raise BadRequest(":policies is a complex folder and should be retrieved using the service_component_all API")
+    response = requests.get("{0}/v1/kv/{1}:{2}".format(CONSUL, service_component_name, key))
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as exc:
+        raise CantGetConfig(exc.response.status_code, exc.response.text)
+    rest = json.loads(response.text)[0]
+    return json.loads(base64.b64decode(rest["Value"]).decode("utf-8"))
