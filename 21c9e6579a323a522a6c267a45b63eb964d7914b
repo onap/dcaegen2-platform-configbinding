@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_4d7a2a78",
+        "filename": "config_binding_service/client.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 105
+      },
+      "writtenOn": "2018-03-01T15:03:00Z",
+      "side": 1,
+      "message": "using the same name for the dictionary and the key is poor practice and a maintainability headache. In fact, pylint complains with this message:\n\nInvalid constant name \"res\" (invalid-name)\n\n I suggest changing it back to the original\n\nfor r in res:\n\nand change the internal \"res\" to \"r\"",
+      "revId": "21c9e6579a323a522a6c267a45b63eb964d7914b",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
