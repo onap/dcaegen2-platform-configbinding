@@ -19,7 +19,7 @@
 import os
 import logging
 
-'''Configures the module root logger'''
+# Configures the module root logger
 root = logging.getLogger()
 if root.handlers:
     root.handlers.clear()
@@ -29,12 +29,18 @@ handler.setFormatter(formatter)
 root.addHandler(handler)
 root.setLevel("DEBUG")
 
+
 class BadEnviornmentENVNotFound(Exception):
+    """
+    Specific exception to be raised when a required ENV varaible is missing
+    """
     pass
+
 
 def get_logger(module=None):
     '''Returns a module-specific logger or global logger if the module is None'''
     return root if module is None else root.getChild(module)
+
 
 def get_consul_uri():
     """
@@ -48,5 +54,3 @@ def get_consul_uri():
         return "http://{0}:{1}".format(os.environ["CONSUL_HOST"], 8500)
     else:
         raise BadEnviornmentENVNotFound("CONSUL_HOST")
-
-
