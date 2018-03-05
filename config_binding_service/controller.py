@@ -48,7 +48,7 @@ def bind_config_for_scn(service_component_name):
     except client.CantGetConfig as e:
         return Response(status=e.code,
                         response=e.response)
-    except Exception as e: #should never happen...
+    except Exception as e:  # should never happen...
         _logger.error(e)
         return Response(response="Please report this error",
                         status=500)
@@ -67,16 +67,17 @@ def get_key(key, service_component_name):
         return Response(status=exc.code,
                         response=exc.response,
                         mimetype="text/plain")
-    except Exception as e: #should never happen...
+    except Exception as e:  # should never happen...
         _logger.error(e)
         return Response(response="Please report this error",
                         status=500)
 
 
 def healthcheck():
-    #got this far, I must be alive... check my connection to Consul by checking myself
+    # got this far, I must be alive... check my connection to Consul by checking myself
     CONSUL = get_consul_uri()
-    res = requests.get("{0}/v1/catalog/service/config_binding_service".format(CONSUL))
+    res = requests.get(
+        "{0}/v1/catalog/service/config_binding_service".format(CONSUL))
     if res.status_code == 200:
         return Response(response="CBS is alive and Consul connection OK",
                         status=200)
