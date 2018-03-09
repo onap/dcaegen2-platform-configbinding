@@ -17,17 +17,6 @@
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
 import os
-import logging
-
-# Configures the module root logger
-root = logging.getLogger()
-if root.handlers:
-    root.handlers.clear()
-formatter = logging.Formatter('%(asctime)s | %(name)s | %(module)s | %(funcName)s | %(lineno)d |  %(levelname)s | %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-root.addHandler(handler)
-root.setLevel("DEBUG")
 
 
 class BadEnviornmentENVNotFound(Exception):
@@ -35,11 +24,6 @@ class BadEnviornmentENVNotFound(Exception):
     Specific exception to be raised when a required ENV varaible is missing
     """
     pass
-
-
-def get_logger(module=None):
-    '''Returns a module-specific logger or global logger if the module is None'''
-    return root if module is None else root.getChild(module)
 
 
 def get_consul_uri():

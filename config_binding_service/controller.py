@@ -16,71 +16,68 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
+import json
 import requests
 from flask import Response
-import json
-from config_binding_service import client, get_consul_uri, get_logger
+from config_binding_service import client, get_consul_uri
+from config_binding_service.logging import LOGGER
 
-_logger = get_logger(__name__)
+
+def _get_helper(json_expecting_func, **kwargs):
+    """
+    Helper function used by several functions below
+    """
+    print(kwargs)
+    try:
+        payload = json_expecting_func(**kwargs)
+        response, status_code, mimetype = json.dumps(payload), 200, "application/json"
+    except client.BadRequest as exc:
+        response, status_code, mimetype = exc.response, exc.code, "text/plain"
+    except client.CantGetConfig as exc:
+        response, status_code, mimetype = exc.response, exc.code, "text/plain"
+    except Exception as exc:
+        LOGGER.error(exc)
+        response, status_code, mimetype = "Unknown error, please report", 500, "text/plain"
+    return response, status_code, mimetype
 
 
 def bind_all(service_component_name):
-    try:
-        allk = client.resolve_all(service_component_name)
-        return Response(response=json.dumps(allk),
-                        status=200,
-                        mimetype="application/json")
-    except client.CantGetConfig as e:
-        return Response(status=e.code,
-                        response=e.response)
-    except Exception as e:
-        _logger.error(e)
-        return Response(response="Unknown error:  please report",
-                        status=500)
+    """
+    Get all the keys in Consul for this SCN, and bind the config
+    """
+    response, status_code, mimetype = _get_helper(client.resolve_all, service_component_name=service_component_name)
+    LOGGER.info("bind_all called for %s, returned code %d", service_component_name, status_code)
+    return Response(response=response, status=status_code, mimetype=mimetype)
 
 
 def bind_config_for_scn(service_component_name):
-    try:
-        bound = client.resolve(service_component_name)
-        return Response(response=json.dumps(bound),
-                        status=200,
-                        mimetype="application/json")
-    except client.CantGetConfig as e:
-        return Response(status=e.code,
-                        response=e.response)
-    except Exception as e:  # should never happen...
-        _logger.error(e)
-        return Response(response="Please report this error",
-                        status=500)
+    """
+    Bind just the config for this SCN
+    """
+    response, status_code, mimetype = _get_helper(client.resolve, service_component_name=service_component_name)
+    LOGGER.info("bind_config_for_scn called for %s, returned code %d", service_component_name, status_code)
+    return Response(response=response, status=status_code, mimetype=mimetype)
 
 
 def get_key(key, service_component_name):
-    try:
-        bound = client.get_key(key, service_component_name)
-        return Response(response=json.dumps(bound),
-                        status=200,
-                        mimetype="application/json")
-    except client.CantGetConfig as e:
-        return Response(status=e.code,
-                        response=e.response)
-    except client.BadRequest as exc:
-        return Response(status=exc.code,
-                        response=exc.response,
-                        mimetype="text/plain")
-    except Exception as e:  # should never happen...
-        _logger.error(e)
-        return Response(response="Please report this error",
-                        status=500)
+    """
+    Get a single key k of the form service_component_name:k from Consul.
+    Should not be used and will return a BAD REQUEST for k=policies because it's a complex object
+    """
+    response, status_code, mimetype = _get_helper(client.get_key, key=key, service_component_name=service_component_name)
+    LOGGER.info("get_key called for %s, returned code %d", service_component_name, status_code)
+    return Response(response=response, status=status_code, mimetype=mimetype)
 
 
 def healthcheck():
-    # got this far, I must be alive... check my connection to Consul by checking myself
-    CONSUL = get_consul_uri()
+    """
+    CBS Healthcheck
+    """
+    LOGGER.info("healthcheck called")
     res = requests.get(
-        "{0}/v1/catalog/service/config_binding_service".format(CONSUL))
+        "{0}/v1/catalog/service/config_binding_service".format(get_consul_uri()))
     if res.status_code == 200:
         return Response(response="CBS is alive and Consul connection OK",
                         status=200)
-    else:
-        return Response(response="CBS is alive but cannot reach Consul",
-                        status=503)
+    return Response(response="CBS is alive but cannot reach Consul",
+                    status=503)

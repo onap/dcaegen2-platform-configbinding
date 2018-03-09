@@ -11,4 +11,6 @@ RUN pip install -e .
 
 EXPOSE 10000
 
+RUN mkdir -p /opt/logs/
+
 CMD run.py

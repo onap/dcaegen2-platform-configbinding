@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.2]
+* Log to a file to be picked up by ELK per DCAEGEN2-387
+* Logging not totally finished w.r.t. formats, but this at least logs more and gets them into ELK
+
+## [2.1.1]
+* [Shamefully this entry was missing]
+
 ## [2.1.0]
 * Add a generic API for getting arbitrary keys
 * Some PEP8/Pylint compliance
