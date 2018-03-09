@@ -16,12 +16,11 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
-import pytest
 import json
+import pytest
 from requests.exceptions import HTTPError
 from config_binding_service import get_consul_uri
 from config_binding_service import client, controller
-
 
 #####
 # MONKEYPATCHES
