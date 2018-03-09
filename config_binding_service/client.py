@@ -23,9 +23,10 @@ import copy
 import json
 import requests
 import six
-from config_binding_service import get_consul_uri, get_logger
+from config_binding_service import get_consul_uri
+from config_binding_service.logging import LOGGER
 
-_logger = get_logger(__name__)
+
 CONSUL = get_consul_uri()
 
 template_match_rels = re.compile("\{{2}([^\}\{]*)\}{2}")
@@ -111,23 +112,20 @@ def _get_connection_info_from_consul(service_component_name):
     TODO: WARNING: FIXTHIS: CALLINTHENATIONALARMY:
     This tries to determine that a service_component_name is a cdap application by inspecting service_component_name and name munging. However, this would force all CDAP applications to have cdap_app in their name. A much better way to do this is to do some kind of catalog_lookup here, OR MAYBE change this API so that the component_type is passed in somehow. THis is a gaping TODO.
     """
-    _logger.info("Retrieving connection information for {0}".format(
-        service_component_name))
+    LOGGER.info("Retrieving connection information for %s", service_component_name)
     res = requests.get(
         "{0}/v1/catalog/service/{1}".format(CONSUL, service_component_name))
     res.raise_for_status()
     services = res.json()
     if services == []:
-        _logger.info("Warning: config and rels keys were both valid, but there is no component named {0} registered in Consul!".format(
-            service_component_name))
+        LOGGER.info("Warning: config and rels keys were both valid, but there is no component named %s registered in Consul!", service_component_name)
         return None  # later will get filtered out
     ip_addr = services[0]["ServiceAddress"]
     port = services[0]["ServicePort"]
     if "cdap_app" in service_component_name:
         redirectish_url = "http://{0}:{1}/application/{2}".format(
             ip_addr, port, service_component_name)
-        _logger.info("component is a CDAP application; trying the broker redirect on {0}".format(
-            redirectish_url))
+        LOGGER.info("component is a CDAP application; trying the broker redirect on %s", redirectish_url)
         res = requests.get(redirectish_url)
         res.raise_for_status()
         details = res.json()
