@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a93c517_6c8267c9",
+        "filename": "config_binding_service/__init__.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 511
+      },
+      "writtenOn": "2018-03-11T21:21:49Z",
+      "side": 1,
+      "message": "There\u0027s a typo in the name (\"Enviorn\" should be \"Environ\", but I wouldn\u0027t hold up the PR to get it fixed.",
+      "revId": "226719d5b23c7b82940a0e4c5b6922eead419788",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
