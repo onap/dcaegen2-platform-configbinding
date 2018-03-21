@@ -21,10 +21,12 @@
 import connexion
 from config_binding_service.logging import create_logger, LOGGER
 
-if __name__ == '__main__':
+
+def main():
+    """CBS Entrypoint"""
     create_logger()
     try:
-        app = connexion.App(__name__, specification_dir='../config_binding_service/swagger/')
+        app = connexion.App(__name__, specification_dir='.')
         app.add_api('swagger.yaml', arguments={'title': 'Config Binding Service'})
         app.run(host='0.0.0.0', port=10000, debug=False)
     except Exception as exc:

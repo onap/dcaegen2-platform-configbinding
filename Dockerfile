@@ -3,11 +3,10 @@ MAINTAINER tommy@research.att.com
 
 ADD . /tmp
 
-#need pip > 8 to have internal pypi repo in requirements.txt
 RUN pip install --upgrade pip 
-#do the install
 WORKDIR /tmp
-RUN pip install -e .
+#do the install
+RUN pip install .
 
 EXPOSE 10000
 

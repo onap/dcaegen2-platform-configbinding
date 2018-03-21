@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.3]
+* Small cleanups; move swagger, remove bin, do proper install in Dockerfile
+
 ## [2.1.2]
 * Log to a file to be picked up by ELK per DCAEGEN2-387
 * Logging not totally finished w.r.t. formats, but this at least logs more and gets them into ELK

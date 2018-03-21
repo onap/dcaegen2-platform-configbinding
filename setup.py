@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='config_binding_service',
-    version='2.1.2',
+    version='2.1.3',
     packages=find_packages(exclude=["tests.*", "tests"]),
     author="Tommy Carpenter",
     author_email="tommy@research.att.com",
@@ -29,6 +29,10 @@ setup(
     keywords="",
     url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
     zip_safe=False,
-    scripts=["bin/run.py"],
-    install_requires=["requests", "Flask", "connexion", "six"]
+    entry_points={
+        'console_scripts': [
+            'run.py=config_binding_service.run:main']
+    },
+    install_requires=["requests", "Flask", "connexion", "six"],
+    include_package_data=True
 )
