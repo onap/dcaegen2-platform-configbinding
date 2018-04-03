@@ -18,16 +18,17 @@
 
 import json
 import requests
+import connexion
+import uuid
 from flask import Response
 from config_binding_service import client, get_consul_uri
-from config_binding_service.logging import LOGGER
+from config_binding_service.logging import LOGGER, audit, utc
 
 
 def _get_helper(json_expecting_func, **kwargs):
     """
     Helper function used by several functions below
     """
-    print(kwargs)
     try:
         payload = json_expecting_func(**kwargs)
         response, status_code, mimetype = json.dumps(payload), 200, "application/json"
@@ -41,22 +42,41 @@ def _get_helper(json_expecting_func, **kwargs):
     return response, status_code, mimetype
 
 
+def _get_or_generate_xer(raw_request):
+    """get or generate the transaction id"""
+    rid = raw_request.headers.get("x-onap-requestid", None)
+    if rid is None:
+        # some components are still using the old name
+        rid = raw_request.headers.get("x-ecomp-requestid", None)
+        if rid is None:
+            # the user did NOT supply a request id, generate one
+            rid = str(uuid.uuid4())
+    return rid
+
+
 def bind_all(service_component_name):
     """
     Get all the keys in Consul for this SCN, and bind the config
     """
+    rid = _get_or_generate_xer(connexion.request)
+    bts = utc()
     response, status_code, mimetype = _get_helper(client.resolve_all, service_component_name=service_component_name)
-    LOGGER.info("bind_all called for %s, returned code %d", service_component_name, status_code)
-    return Response(response=response, status=status_code, mimetype=mimetype)
+    audit(connexion.request, bts, rid, status_code, __name__)
+    # Even though some older components might be using the ecomp name, we return the proper one
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
 
 
 def bind_config_for_scn(service_component_name):
     """
     Bind just the config for this SCN
     """
+    print(connexion)
+    print(connexion.request)
+    rid = _get_or_generate_xer(connexion.request)
+    bts = utc()
     response, status_code, mimetype = _get_helper(client.resolve, service_component_name=service_component_name)
-    LOGGER.info("bind_config_for_scn called for %s, returned code %d", service_component_name, status_code)
-    return Response(response=response, status=status_code, mimetype=mimetype)
+    audit(connexion.request, bts, rid, status_code, __name__)
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
 
 
 def get_key(key, service_component_name):
@@ -64,9 +84,11 @@ def get_key(key, service_component_name):
     Get a single key k of the form service_component_name:k from Consul.
     Should not be used and will return a BAD REQUEST for k=policies because it's a complex object
     """
+    rid = _get_or_generate_xer(connexion.request)
+    bts = utc()
     response, status_code, mimetype = _get_helper(client.get_key, key=key, service_component_name=service_component_name)
-    LOGGER.info("get_key called for %s, returned code %d", service_component_name, status_code)
-    return Response(response=response, status=status_code, mimetype=mimetype)
+    audit(connexion.request, bts, rid, status_code, __name__)
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
 
 
 def healthcheck():

@@ -27,6 +27,14 @@ from config_binding_service import client, controller
 #####
 
 
+class FakeConnexion(object):
+    def __init__(self, headers, path, host, remote_addr):
+        self.headers = headers
+        self.path = path
+        self.host = host
+        self.remote_addr = remote_addr
+
+
 def monkeyed_get_connection_info_from_consul(service_component_name):
     # shared monkeypatch. probably somewhat lazy because the function htis patches can be broken up.
     if service_component_name == "cdap":
@@ -107,6 +115,7 @@ def test_get_config_rels_dmaap(monkeypatch):
 
 def test_bind_config_for_scn(monkeypatch):
     monkeypatch.setattr('requests.put', monkeyed_requests_put)
+    monkeypatch.setattr('connexion.request', FakeConnexion({"x-onap-requestid": 123456789}, "/service_component", "mytestingmachine", "myremoteclient"))
 
     assert(client.resolve("scn_exists") == {"foo3": "bar3"})
     with pytest.raises(client.CantGetConfig):
@@ -115,12 +124,15 @@ def test_bind_config_for_scn(monkeypatch):
     R = controller.bind_config_for_scn("scn_exists")
     assert(json.loads(R.data) == {"foo3": "bar3"})
     assert(R.status_code == 200)
+    assert(R.headers["x-onap-requestid"] == "123456789")
 
     R = controller.bind_config_for_scn("scn_NOTexists")
     assert(R.status_code == 404)
+    assert(R.headers["x-onap-requestid"] == "123456789")
 
     R = controller.bind_config_for_scn("asdfasdf")
     assert(R.status_code == 500)
+    assert(R.headers["x-onap-requestid"] == "123456789")
 
 
 def test_generic(monkeypatch):
@@ -132,18 +144,23 @@ def test_generic(monkeypatch):
         client.get_key(
             "nokeyforyou", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
 
+    monkeypatch.setattr('connexion.request', FakeConnexion({}, "/get_key", "mytestingmachine", "myremoteclient"))
+
     R = controller.get_key(
         "dti", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
     assert(json.loads(R.data) == {"my": "dti"})
     assert(R.status_code == 200)
+    assert "x-onap-requestid" in R.headers
 
     R = controller.get_key(
         "nokeyforyou", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
     assert(R.status_code == 404)
+    assert "x-onap-requestid" in R.headers
 
     R = controller.get_key(
         "policies", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
     assert(R.status_code == 400)
+    assert "x-onap-requestid" in R.headers
 
 
 def test_bad_config_http():
@@ -300,10 +317,13 @@ def test_resolve_all(monkeypatch):
     allk = client.resolve_all("test_resolve_scn")
     assert allk == {"config": expected_config}
 
+    monkeypatch.setattr('connexion.request', FakeConnexion({}, "/service_component_all", "mytestingmachine", "myremoteclient"))
+
     R = controller.bind_all(
         "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
     assert(json.loads(R.data) == withstuff)
     assert(R.status_code == 200)
+    assert "x-onap-requestid" in R.headers
 
     R = controller.bind_all("test_resolve_scn")
     assert(json.loads(R.data) == {"config": expected_config})
@@ -311,6 +331,7 @@ def test_resolve_all(monkeypatch):
 
     R = controller.bind_all("scn_NOTexists")
     assert(R.status_code == 404)
+    assert "x-onap-requestid" in R.headers
 
     R = controller.bind_all("asdfasdf")
     assert(R.status_code == 500)

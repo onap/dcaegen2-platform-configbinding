@@ -19,6 +19,7 @@
 from logging import getLogger, StreamHandler, Formatter
 from logging.handlers import RotatingFileHandler
 from os import makedirs
+import datetime
 
 
 LOGGER = getLogger("defaultlogger")
@@ -26,19 +27,17 @@ LOGGER = getLogger("defaultlogger")
 
 def _create_logger(name, logfile):
     """
-    Create a RotatingFileHandker
+    Create a RotatingFileHandler and a streamhandler for stdout
     https://docs.python.org/3/library/logging.handlers.html
     what's with the non-pythonic naming in these stdlib methods? Shameful.
     """
     logger = getLogger(name)
     file_handler = RotatingFileHandler(logfile,
                                        maxBytes=10000000, backupCount=2)  # 10 meg with one backup..
-    file_formatter = Formatter('%(asctime)s | %(name)s | %(module)s | %(funcName)s | %(lineno)d |  %(levelname)s | %(message)s')  # right now the same, but intending to change
-    file_handler.setFormatter(file_formatter)
-
+    formatter = Formatter('%(message)s')
+    file_handler.setFormatter(formatter)
     stream_handler = StreamHandler()
-    stream_formatter = Formatter('%(asctime)s | %(name)s | %(module)s | %(funcName)s | %(lineno)d |  %(levelname)s | %(message)s')
-    stream_handler.setFormatter(stream_formatter)
+    stream_handler.setFormatter(formatter)
     logger.setLevel("DEBUG")  # a function is going to wrap this anyway
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
@@ -54,3 +53,42 @@ def create_logger():
     open(LOGFILE, 'a').close()  # this is like "touch"
     global LOGGER
     LOGGER = _create_logger("config_binding_service", LOGFILE)
+
+
+def utc():
+    """gets current time in utc"""
+    return datetime.datetime.utcnow()
+
+
+def audit(raw_request, bts, xer, rcode, calling_mod, msg="n/a"):
+    """
+    write an EELF audit record per https://wiki.onap.org/download/attachments/1015849/ONAP%20application%20logging%20guidelines.pdf?api=v2
+    %The audit fields implemented:
+
+    1 BeginTimestamp                    Implemented (bts)
+    2 EndTimestamp                      Auto Injected when this is called
+    3 RequestID                         Implemented (xer)
+    7 serviceName                       Implemented (from Req)
+    9 StatusCode                        Auto injected based on rcode
+    10 ResponseCode                     Implemented (rcode)
+    15 Server IP address                Implemented (from Req)
+    16 ElapsedTime                      Auto Injected (milliseconds)
+    18 ClientIPaddress                  Implemented (from Req)
+    19 class name                       Implemented (mod), though docs say OOP, I am using the python  module here
+    20 Unused                           ...implemented....
+    21-25 Custom                        n/a
+    26 detailMessage                    Implemented (msg)
+    """
+    ets = utc()
+
+    LOGGER.info("{bts}|{ets}|{xer}||||{path}||{status}|{rcode}|||||{servip}|{et}||{clientip}|{calling_mod}|||||||{msg}".format(
+        bts=bts.isoformat(),
+        ets=ets.isoformat(),
+        xer=xer, rcode=rcode,
+        path=raw_request.path.split("/")[1],
+        status="COMPLETE" if rcode == 200 else "ERROR",
+        servip=raw_request.host.split(":")[0],
+        et=int((ets - bts).microseconds / 1000),  # supposed to be in milleseconds
+        clientip=raw_request.remote_addr,
+        calling_mod=calling_mod, msg=msg
+    ))
