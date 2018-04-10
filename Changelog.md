@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.5] - 4/10/2018
+* Fix a key where an invalid JSON in Consul blows up the CBS
+* Refactor the tests into smaller files
+
 ## [2.1.4] - 4/3/2018
 * Adhere to EELF metrics log for the log file
 

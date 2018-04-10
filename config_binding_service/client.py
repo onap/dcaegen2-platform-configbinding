@@ -87,8 +87,11 @@ def _consul_get_all_as_transaction(service_component_name):
     new_res = {}
     for res in result:
         key = res["KV"]["Key"]
-        new_res[key] = json.loads(base64.b64decode(
-            res["KV"]["Value"]).decode("utf-8"))
+        val = base64.b64decode(res["KV"]["Value"]).decode("utf-8")
+        try:
+            new_res[key] = json.loads(val)
+        except json.decoder.JSONDecodeError:
+            new_res[key] = "INVALID JSON"  # TODO, should we just include the original value somehow?
 
     if service_component_name not in new_res:
         raise CantGetConfig(404, "")
