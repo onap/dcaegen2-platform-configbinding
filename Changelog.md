@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.0] - 6/26/2018
+* Productionalize by moving to NGINX+UWSGI. Flask was not meant to be run as a production server
+* This is towards HTTPS support, which will now be done via NGINX reverse proxying instead of in the application code itself
+* The app structure has changed due to the project I am now using for this. See https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
+
 ## [2.1.5] - 4/10/2018
 * Fix a key where an invalid JSON in Consul blows up the CBS
 * Refactor the tests into smaller files

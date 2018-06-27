@@ -1,9 +1,7 @@
 # config_binding_service
 
-# Interface Diagram
-This repo is the thing in red:
-
-![Alt text](doc/cbs_diagram.png?raw=true)
+# Changelog
+All changes are logged in Changelog.md
 
 # Overview
 
@@ -43,6 +41,29 @@ X's configuration:
     config_key : << F >> // will try to resolve via X:dmaap and look for F
     config_key : {{ F }} // will try to resolve via X:rels and look for F
 }
+```
+
+# A note about directory structure
+This project uses https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
+This is a solution that runs a productionalized setup using NGINX+uwsgi+Flask (Flask is not meant to be run as a real webserver per their docs). This project requires the app/app structure. Tox still works from the root due to tox magic.
+
+# Running
+
+## Locally (no docker)
+It is recommended that you do this step in a virtualenv.
+(set -x is Fish notaion, change for Bash etc. accordingly)
+```
+pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; ./main.py
+```
+
+## Docker
+## building
+```
+docker build -t config_binding_service:myversion .
+```
+## running
+```
+docker run -dt -p myextport:80 config_binding_service:myversion
 ```
 
 # Testing

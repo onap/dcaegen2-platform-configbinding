@@ -1,15 +1,13 @@
-FROM python:3.6
+FROM tiangolo/uwsgi-nginx-flask:python3.6
 MAINTAINER tommy@research.att.com
 
-ADD . /tmp
+#setup uwsgi+nginx 
+# https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
+COPY ./app /app
 
-RUN pip install --upgrade pip 
-WORKDIR /tmp
-#do the install
-RUN pip install .
-
-EXPOSE 10000
+RUN pip install --upgrade pip
+RUN pip install /app/app
 
 RUN mkdir -p /opt/logs/
 
-CMD run.py
+ENV LISTEN_PORT 10000 
