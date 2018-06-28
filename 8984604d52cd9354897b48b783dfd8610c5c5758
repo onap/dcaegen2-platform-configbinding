@@ -1,0 +1,9 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: Jack Lucas <jflucas@research.att.com>
+Code-Review+1: William Au <wa998j@att.com>
+Code-Review+2: Vijay Venkatesh Kumar <vv770d@att.com>
+Submitted-by: Vijay Venkatesh Kumar <vv770d@att.com>
+Submitted-at: Thu, 28 Jun 2018 18:46:54 +0000
+Reviewed-on: https://gerrit.onap.org/r/55473
+Project: dcaegen2/platform/configbinding
+Branch: refs/heads/master
