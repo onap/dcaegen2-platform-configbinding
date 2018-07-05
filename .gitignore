@@ -1,4 +1,6 @@
 .pytest_cache/
+run_tests.sh
+run_tests_https.sh
 xunit-results.xml
 .DS_Store
 # Byte-compiled / optimized / DLL files

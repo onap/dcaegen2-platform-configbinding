@@ -22,7 +22,7 @@ import connexion
 import uuid
 from flask import Response
 from config_binding_service import client, get_consul_uri
-from config_binding_service.logging import LOGGER, audit, utc
+from config_binding_service.logging import audit, utc, error
 
 
 def _get_helper(json_expecting_func, **kwargs):
@@ -37,46 +37,43 @@ def _get_helper(json_expecting_func, **kwargs):
     except client.CantGetConfig as exc:
         response, status_code, mimetype = exc.response, exc.code, "text/plain"
     except Exception as exc:
-        LOGGER.error(exc)
-        response, status_code, mimetype = "Unknown error, please report", 500, "text/plain"
+        response, status_code, mimetype = "Unknown error", 500, "text/plain"
     return response, status_code, mimetype
 
 
 def _get_or_generate_xer(raw_request):
     """get or generate the transaction id"""
-    rid = raw_request.headers.get("x-onap-requestid", None)
-    if rid is None:
+    xer = raw_request.headers.get("x-onap-requestid", None)
+    if xer is None:
         # some components are still using the old name
-        rid = raw_request.headers.get("x-ecomp-requestid", None)
-        if rid is None:
+        xer = raw_request.headers.get("x-ecomp-requestid", None)
+        if xer is None:
             # the user did NOT supply a request id, generate one
-            rid = str(uuid.uuid4())
-    return rid
+            xer = str(uuid.uuid4())
+    return xer
 
 
 def bind_all(service_component_name):
     """
     Get all the keys in Consul for this SCN, and bind the config
     """
-    rid = _get_or_generate_xer(connexion.request)
+    xer = _get_or_generate_xer(connexion.request)
     bts = utc()
     response, status_code, mimetype = _get_helper(client.resolve_all, service_component_name=service_component_name)
-    audit(connexion.request, bts, rid, status_code, __name__)
+    audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
     # Even though some older components might be using the ecomp name, we return the proper one
-    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
 
 
 def bind_config_for_scn(service_component_name):
     """
     Bind just the config for this SCN
     """
-    print(connexion)
-    print(connexion.request)
-    rid = _get_or_generate_xer(connexion.request)
+    xer = _get_or_generate_xer(connexion.request)
     bts = utc()
     response, status_code, mimetype = _get_helper(client.resolve, service_component_name=service_component_name)
-    audit(connexion.request, bts, rid, status_code, __name__)
-    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
+    audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
 
 
 def get_key(key, service_component_name):
@@ -84,22 +81,26 @@ def get_key(key, service_component_name):
     Get a single key k of the form service_component_name:k from Consul.
     Should not be used and will return a BAD REQUEST for k=policies because it's a complex object
     """
-    rid = _get_or_generate_xer(connexion.request)
+    xer = _get_or_generate_xer(connexion.request)
     bts = utc()
     response, status_code, mimetype = _get_helper(client.get_key, key=key, service_component_name=service_component_name)
-    audit(connexion.request, bts, rid, status_code, __name__)
-    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": rid})
+    audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
+    return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
 
 
 def healthcheck():
     """
     CBS Healthcheck
     """
-    LOGGER.info("healthcheck called")
-    res = requests.get(
-        "{0}/v1/catalog/service/config_binding_service".format(get_consul_uri()))
-    if res.status_code == 200:
-        return Response(response="CBS is alive and Consul connection OK",
-                        status=200)
-    return Response(response="CBS is alive but cannot reach Consul",
-                    status=503)
+    xer = _get_or_generate_xer(connexion.request)
+    bts = utc()
+    res = requests.get("{0}/v1/catalog/service/config_binding_service".format(get_consul_uri()))
+    status = res.status_code
+    if status == 200:
+        response = "CBS is alive and Consul connection OK"
+    else:
+        response = "CBS is alive but cannot reach Consul"
+        # treating this as a WARN because this could be a temporary network glitch. Also per EELF guidelines this is a 200 ecode (availability)
+        error(connexion.request, xer, "WARN", 200, tgt_entity="Consul", tgt_path="/v1/catalog/service/config_binding_service", msg=response)
+    audit(connexion.request, bts, xer, status, __name__, msg=response)
+    return Response(response=response, status=status)

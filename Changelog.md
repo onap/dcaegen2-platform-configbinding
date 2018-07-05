@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.1] - 7/5/2018
+* Fix bug where healthcheck call was not in the audit log
+* Add service_component_name into the audit record message field on audit calls
+* Rename "log.log" to "audit.log"
+* Add EELF compliant "error.log"
+
 ## [2.2.0] - 6/26/2018
 * Productionalize by moving to NGINX+UWSGI. Flask was not meant to be run as a production server
 * This is towards HTTPS support, which will now be done via NGINX reverse proxying instead of in the application code itself
