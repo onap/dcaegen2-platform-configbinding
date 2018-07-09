@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='config_binding_service',
-    version='2.2.1',
+    version='2.2.2',
     packages=find_packages(exclude=["tests.*", "tests"]),
     author="Tommy Carpenter",
     author_email="tommy@research.att.com",

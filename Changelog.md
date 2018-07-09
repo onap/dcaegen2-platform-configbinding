@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.2] - 7/9/2018
+* Add EELF metrics log and logging statements
+* Fixed a redundant Consul call where client.resolve_all did not need to call the transaction API twice
+* Fix some comments / add deprecation warnings
+
 ## [2.2.1] - 7/5/2018
 * Fix bug where healthcheck call was not in the audit log
 * Add service_component_name into the audit record message field on audit calls

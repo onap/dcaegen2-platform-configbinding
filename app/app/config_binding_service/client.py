@@ -24,7 +24,7 @@ import json
 import requests
 import six
 from config_binding_service import get_consul_uri
-from config_binding_service.logging import LOGGER
+from config_binding_service.logging import utc, metrics
 
 
 CONSUL = get_consul_uri()
@@ -62,7 +62,7 @@ class BadRequest(Exception):
 ###
 
 
-def _consul_get_all_as_transaction(service_component_name):
+def _consul_get_all_as_transaction(service_component_name, raw_request, xer):
     """
     Use Consul's transaction API to get all keys of the form service_component_name:*
     Return a dict with all the values decoded
@@ -75,7 +75,9 @@ def _consul_get_all_as_transaction(service_component_name):
             }
         }]
 
+    bts = utc()
     response = requests.put("{0}/v1/txn".format(CONSUL), json=payload)
+    metrics(raw_request, bts, xer, "Consul", "/v1/txn".format(service_component_name), response.status_code, __name__, msg="Retrieving Consul transaction for all keys for {0}".format(service_component_name))
 
     try:
         response.raise_for_status()
@@ -99,8 +101,8 @@ def _consul_get_all_as_transaction(service_component_name):
     return new_res
 
 
-def _get_config_rels_dmaap(service_component_name):
-    allk = _consul_get_all_as_transaction(service_component_name)
+def _get_config_rels_dmaap(service_component_name, raw_request, xer):
+    allk = _consul_get_all_as_transaction(service_component_name, raw_request, xer)
     config = allk[service_component_name]
     rels = allk.get(service_component_name + ":rels", [])
     dmaap = allk.get(service_component_name + ":dmaap", {})
@@ -112,23 +114,27 @@ def _get_connection_info_from_consul(service_component_name):
     Call consul's catalog
     TODO: currently assumes there is only one service
 
-    TODO: WARNING: FIXTHIS: CALLINTHENATIONALARMY:
-    This tries to determine that a service_component_name is a cdap application by inspecting service_component_name and name munging. However, this would force all CDAP applications to have cdap_app in their name. A much better way to do this is to do some kind of catalog_lookup here, OR MAYBE change this API so that the component_type is passed in somehow. THis is a gaping TODO.
+    DEPRECATION NOTE:
+    This function existed when DCAE was using Consul to resolve service component's connection information.
+    This relied on a "rels" key and a Cloudify relationship plugin to set up the magic.
+    The consensous is that this feature is no longer used.
+    This functionality is very likely deprecated by Kubernetes service discovery mechanism, and DMaaP.
+
+    This function also includes logic related to CDAP, which is also likely deprecated.
+
+    This code shall remain here for now but is at risk of being deleted in a future release.
     """
-    LOGGER.info("Retrieving connection information for %s", service_component_name)
-    res = requests.get(
-        "{0}/v1/catalog/service/{1}".format(CONSUL, service_component_name))
+    # Note: there should be a metrics log here, but see the deprecation note above; this function is due to be deleted.
+    res = requests.get("{0}/v1/catalog/service/{1}".format(CONSUL, service_component_name))
     res.raise_for_status()
     services = res.json()
     if services == []:
-        LOGGER.info("Warning: config and rels keys were both valid, but there is no component named %s registered in Consul!", service_component_name)
         return None  # later will get filtered out
     ip_addr = services[0]["ServiceAddress"]
     port = services[0]["ServicePort"]
+
     if "cdap_app" in service_component_name:
-        redirectish_url = "http://{0}:{1}/application/{2}".format(
-            ip_addr, port, service_component_name)
-        LOGGER.info("component is a CDAP application; trying the broker redirect on %s", redirectish_url)
+        redirectish_url = "http://{0}:{1}/application/{2}".format(ip_addr, port, service_component_name)
         res = requests.get(redirectish_url)
         res.raise_for_status()
         details = res.json()
@@ -214,11 +220,13 @@ def _recurse(config, rels, dmaap):
 #########
 
 
-def resolve(service_component_name):
+def resolve(service_component_name, raw_request, xer):
     """
     Return the bound config of service_component_name
+
+    raw_request and xer are needed to form the correct metrics log
     """
-    config, rels, dmaap = _get_config_rels_dmaap(service_component_name)
+    config, rels, dmaap = _get_config_rels_dmaap(service_component_name, raw_request, xer)
     return _recurse(config, rels, dmaap)
 
 
@@ -231,15 +239,19 @@ def resolve_override(config, rels=[], dmaap={}):
     return _recurse(copy.deepcopy(config), rels, dmaap)
 
 
-def resolve_all(service_component_name):
+def resolve_all(service_component_name, raw_request, xer):
     """
     Return config,  policies, and any other k such that service_component_name:k exists (other than :dmaap and :rels)
+
+    raw_request and xer are needed to form the correct metrics log
     """
-    allk = _consul_get_all_as_transaction(service_component_name)
+    allk = _consul_get_all_as_transaction(service_component_name, raw_request, xer)
     returnk = {}
 
     # replace the config with the resolved config
-    returnk["config"] = resolve(service_component_name)
+    returnk["config"] = resolve_override(allk[service_component_name],
+                                         allk.get("{0}:rels".format(service_component_name), []),
+                                         allk.get("{0}:dmaap".format(service_component_name), {}))
 
     # concatenate the items
     for k in allk:
@@ -262,15 +274,21 @@ def resolve_all(service_component_name):
     return returnk
 
 
-def get_key(key, service_component_name):
+def get_key(key, service_component_name, raw_request, xer):
     """
     Try to fetch a key k from Consul of the form service_component_name:k
+
+    raw_request and xer are needed to form the correct metrics log
     """
     if key == "policies":
         raise BadRequest(
             ":policies is a complex folder and should be retrieved using the service_component_all API")
-    response = requests.get(
-        "{0}/v1/kv/{1}:{2}".format(CONSUL, service_component_name, key))
+
+    bts = utc()
+    path = "v1/kv/{0}:{1}".format(service_component_name, key)
+    response = requests.get("{0}/{1}".format(CONSUL, path))
+    metrics(raw_request, bts, xer, "Consul", path, response.status_code, __name__, msg="Retrieving single Consul key {0} for {1}".format(key, service_component_name))
+
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as exc:

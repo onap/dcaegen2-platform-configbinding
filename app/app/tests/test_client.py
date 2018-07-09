@@ -1,11 +1,20 @@
 from config_binding_service import client
 
 
+# pytest doesnt support objects in conftest
+class FakeReq(object):
+    """used to fake the logging params"""
+    def __init__(self):
+        self.path = "/unittest in {0}".format(__name__)
+        self.host = "localhost"
+        self.remote_addr = "6.6.6.6"
+
+
 def test_consul_get_all_as_transaction(monkeypatch, monkeyed_requests_put):
     """tests _consul_get_all_as_transaction"""
     monkeypatch.setattr('requests.put', monkeyed_requests_put)
     allk = client._consul_get_all_as_transaction(
-        "test_service_component_name.unknown.unknown.unknown.dcae.onap.org")
+        "test_service_component_name.unknown.unknown.unknown.dcae.onap.org", FakeReq(), "unit test xer")
     assert allk == {
         'test_service_component_name.unknown.unknown.unknown.dcae.onap.org': {'my': 'amazing config'},
         'test_service_component_name.unknown.unknown.unknown.dcae.onap.org:dti': {'my': 'dti'},
@@ -16,15 +25,15 @@ def test_consul_get_all_as_transaction(monkeypatch, monkeyed_requests_put):
         'test_service_component_name.unknown.unknown.unknown.dcae.onap.org:rels': ['my.amazing.relationship']
     }
 
-    allk = client._consul_get_all_as_transaction("cbs_test_messed_up")
+    allk = client._consul_get_all_as_transaction("cbs_test_messed_up", FakeReq(), "unit test xer")
     assert allk == {'cbs_test_messed_up': {'foo': 'bar'},
                     'cbs_test_messed_up:badkey': 'INVALID JSON'}
 
 
 def test_get_config_rels_dmaap(monkeypatch, monkeyed_requests_put):
     monkeypatch.setattr('requests.put', monkeyed_requests_put)
-    assert ({"foo3": "bar3"}, ["foo"], {"foo4": "bar4"}) == client._get_config_rels_dmaap("scn_exists")
-    assert ({"foo5": "bar5"}, [], {}) == client._get_config_rels_dmaap("scn_exists_nord")
+    assert ({"foo3": "bar3"}, ["foo"], {"foo4": "bar4"}) == client._get_config_rels_dmaap("scn_exists", FakeReq(), "unit test xer")
+    assert ({"foo5": "bar5"}, [], {}) == client._get_config_rels_dmaap("scn_exists_nord", FakeReq(), "unit test xer")
 
 
 def test_bad_config_http():
