@@ -29,7 +29,7 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
   <groupId>org.onap.dcaegen2.platform</groupId>
   <artifactId>configbinding</artifactId>
   <name>dcaegen2-platform-configbinding</name>
-  <version>2.1.5</version>
+  <version>2.2.2</version>
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,8 +38,8 @@ ECOMP is a trademark and service mark of AT&T Intellectual Property.
     <sonar.python.coverage.reportPath>coverage.xml</sonar.python.coverage.reportPath>
     <sonar.language>py</sonar.language>
     <sonar.pluginname>python</sonar.pluginname>
-    <sonar.inclusions>**/**.py</sonar.inclusions>
-    <sonar.exclusions>tests/*,setup.py</sonar.exclusions>
+    <sonar.inclusions>app/app/config_binding_service/*.py</sonar.inclusions>
+    <sonar.exclusions>app/app/tests/*,app/app/setup.py</sonar.exclusions>
   </properties>
   <build>
     <finalName>${project.artifactId}-${project.version}</finalName>
