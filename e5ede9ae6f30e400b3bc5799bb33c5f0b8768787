@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da7095c5_df953389",
+        "filename": "mvn-phase-script.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-07-19T14:34:36Z",
+      "side": 1,
+      "message": "This wouldn\u0027t apply here",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 73,
+        "endChar": 6
+      },
+      "revId": "e5ede9ae6f30e400b3bc5799bb33c5f0b8768787",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da7095c5_ff92779e",
+        "filename": "mvn-phase-script.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2018-07-19T14:34:36Z",
+      "side": 1,
+      "message": "Same comment as earlier.",
+      "range": {
+        "startLine": 80,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 6
+      },
+      "revId": "e5ede9ae6f30e400b3bc5799bb33c5f0b8768787",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
