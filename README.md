@@ -15,13 +15,7 @@ There is also a "dmaap key", which is the same concept, except what gets injecte
 In addition, this service provides the capability to retrieve either the DTI events (not history) or the policies for a given service_component.
 
 # Usage
-hit `url_of_this/service_component/service_component_name` and you are returned your bound config.
-
-hit `url_of_this/dtievents/service_component_name` and you are returned the dti events for your service_component.
-
-hit `url_of_this/policies/service_component_name` and you are returned the policies  for your service_component.
-
-(Note: there is also a backdoor in the `client` module that allows you to pass in a direct JSON and a direct rels, but this isn't exposed via the HTTP API as of now)
+See the Swagger spec.
 
 # Assumptions
 1. `CONSUL_HOST` is set as an environmental variable where this binding service is run. If it is not, it defaults to the Rework Consul which is probably not what you want.
@@ -47,24 +41,40 @@ X's configuration:
 This project uses https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
 This is a solution that runs a productionalized setup using NGINX+uwsgi+Flask (Flask is not meant to be run as a real webserver per their docs). This project requires the app/app structure. Tox still works from the root due to tox magic.
 
-# Testing
-You need tox:
-```
-pip install tox
-```
-Then from the root dir, *not in a virtual env*, just run:
+This structure, combined with Sonar limitations, leads to an unfortunate need of having three nested poms. There is a top level pom, a tiny pom in /app, and the "main" pom in /app/app.
+
+# Development
+## Version changes
+An unforunate consequence of the nested poms is that development changes require a version bump in several places. They are:
+1. top level pom
+2. pom in /app
+3. pom in /app/app
+4. setup.py in /app/app
+5. Changelod.md
+
+Additionally, if the development leads to an API change,
+6. swagger.yaml in /app/app
+
+## Testing
+You need `tox`.
+
+To recreate the tox that the ONAP build process calls, from /app/app,  *not in a virtual env*, just run:
 ```
 tox
 ```
-You may have to alter the tox.ini for the python envs you wish to test with.
 
-# Deployment information
+For local development, there is a tox that outputs to an html website that is easier to read and navigate then xml. From the *root*, run
+```
+tox -c tox-local.ini
+```
+
+# Deployment
 
 ## Ports, HTTPS key/cert location
 
 The CBS frontend (NGINX) exposes 10000 and 443. It runs HTTP on 10000 and HTTPS on 443. 80 is also exposed by the parent Dockerfile but nothing is listening there so it can be ignored.
 
-If you wish to use HTTPS, it expects a key to be mounted at `/etc/nginx/ssl/nginx.key` and a cert to be mounted at `/etc/nginx/ssl/nginx.crt`. For example, a snippet from a `docker run` command:
+The dockerimage mounts it's own self signed certificate. If deploying into a production level scenario, *you should overwrite this cert!*! It expects a key to be mounted at `/etc/nginx/ssl/nginx.key` and a cert to be mounted at `/etc/nginx/ssl/nginx.crt`. For example, a snippet from a `docker run` command:
 
 ```
 ... -v /host/path/to/nginx.key:/etc/nginx/ssl/nginx.key -v /host/path/to/nginx.crt:/etc/nginx/ssl/nginx.crt ...
