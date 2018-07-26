@@ -16,6 +16,24 @@
       "revId": "491b1e5a510a6ed4840698668c658bdeaf01387c",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da7095c5_5041ff37",
+        "filename": "app/app/swagger.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 515
+      },
+      "writtenOn": "2018-07-26T13:11:36Z",
+      "side": 1,
+      "message": "Because the current version is 2.2.3, with the API corresponding to 2.2 swagger wise.",
+      "parentUuid": "da7095c5_d61c2c6d",
+      "revId": "491b1e5a510a6ed4840698668c658bdeaf01387c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
