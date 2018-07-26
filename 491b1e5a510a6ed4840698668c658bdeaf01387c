@@ -34,6 +34,24 @@
       "revId": "491b1e5a510a6ed4840698668c658bdeaf01387c",
       "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da7095c5_30e48b3a",
+        "filename": "app/app/swagger.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 511
+      },
+      "writtenOn": "2018-07-26T13:19:04Z",
+      "side": 1,
+      "message": "I\u0027m still confused.  There\u0027s no visible change in the API.  Why would the version change?  2.1.0 and 2.2.0 have the same Swagger definition.  What am I missing?",
+      "parentUuid": "da7095c5_5041ff37",
+      "revId": "491b1e5a510a6ed4840698668c658bdeaf01387c",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
     }
   ]
 }
