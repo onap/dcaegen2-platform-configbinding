@@ -69,6 +69,7 @@ install)
   ;;
 deploy)
   echo "==> deploy phase script"
+  build_and_push_docker()
   ;;
 *)
   echo "==> unprocessed phase"
