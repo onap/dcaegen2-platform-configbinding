@@ -36,7 +36,7 @@ def _get_helper(json_expecting_func, **kwargs):
         response, status_code, mimetype = exc.response, exc.code, "text/plain"
     except client.CantGetConfig as exc:
         response, status_code, mimetype = exc.response, exc.code, "text/plain"
-    except Exception as exc:
+    except Exception:
         response, status_code, mimetype = "Unknown error", 500, "text/plain"
     return response, status_code, mimetype
 

@@ -51,6 +51,7 @@ An unforunate consequence of the nested poms is that development changes require
 3. pom in /app/app
 4. setup.py in /app/app
 5. Changelod.md
+6. version.properties
 
 Additionally, if the development leads to an API change,
 6. swagger.yaml in /app/app
