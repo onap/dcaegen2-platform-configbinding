@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.2.4] - 10/25/2018
+* Fix issues caused by a flake8 update
+
 ## [2.2.3] - 7/25/2018
 * By request, include a self signed cert so the image always comes up.
 
