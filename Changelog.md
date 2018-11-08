@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.3.1]
 * Add more tests (Currently 75%)
-* Fix liscenses
+* Fix licenses
 
 ## [1.3.0]
 * Sync ONAP with Internal CBS
@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.2.0]
 * Remove waterfalled CONSUL_HOST
-* Add ONAP liscenses
+* Add ONAP licenses
 * Remove references to specific telco and it's IPs in tests
 * [Internal version conflict]: Add dti and policies endpoints
 
@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Removes some impure tests. Still some impurity there
 
 ## [0.9.0]
-* In addition to the "rels key" a new key was introduced, the "dmaap key". Support replacing dmaap keys assumung the tempalating language "<< >>"
+* In addition to the "rels key" a new key was introduced, the "dmaap key". Support replacing dmaap keys assuming the templating language "<< >>"
 
 ## [0.8.0]
 * Start changelog..
