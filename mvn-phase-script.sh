@@ -69,7 +69,10 @@ install)
   ;;
 deploy)
   echo "==> deploy phase script"
+  TMPPWD="$(pwd)"
+  cd ${PROJECT_ROOT}
   build_and_push_docker
+  cd ${TMPPWD}
   ;;
 *)
   echo "==> unprocessed phase"
