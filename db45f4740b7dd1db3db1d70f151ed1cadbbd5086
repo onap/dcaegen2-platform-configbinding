@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: William Au <wa998j@att.com>
+Code-Review+2: Tony Hansen <tony@att.com>
+Submitted-by: Tony Hansen <tony@att.com>
+Submitted-at: Fri, 09 Nov 2018 17:08:57 +0000
+Reviewed-on: https://gerrit.onap.org/r/72255
+Project: dcaegen2/platform/configbinding
+Branch: refs/heads/casablanca
