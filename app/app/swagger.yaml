@@ -20,7 +20,7 @@
 ---
 swagger: "2.0"
 info:
-  version: "2.1.0"
+  version: "2.2.5"
   title: "Config Binding Service"
 paths:
   /service_component/{service_component_name}:
