@@ -151,7 +151,7 @@ def _replace_rels_template(rels, template_identifier):
     """
     returnl = []
     for rel in rels:
-        if template_identifier in rel and template_identifier is not "":
+        if template_identifier in rel and template_identifier != "":
             returnl.append(rel)
     # returnl now contains a list of DNS names (possible empty), now resolve them (or not if they are not regustered)
     return list(filter(lambda x: x is not None, map(_get_connection_info_from_consul, returnl)))
