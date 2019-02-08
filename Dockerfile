@@ -1,4 +1,4 @@
-FROM tiangolo/uwsgi-nginx-flask:python3.6
+FROM tiangolo/uwsgi-nginx-flask:python3.7
 MAINTAINER tommy@research.att.com
 
 #setup uwsgi+nginx 
