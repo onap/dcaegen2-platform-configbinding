@@ -46,14 +46,14 @@ This structure, combined with Sonar limitations, leads to an unfortunate need of
 # Development
 ## Version changes
 An unforunate consequence of the nested poms is that development changes require a version bump in several places. They are:
-1. top level pom
-2. pom in /app
-3. pom in /app/app
-4. setup.py in /app/app
-5. Changelod.md
-6. version.properties
+1. Changelod.md
+2. version.properties
+3. top level pom
+4. pom in /app
+5. pom in /app/app
+6. setup.py in /app/app
 Additionally, if the development leads to an API change,
-7. swagger.yaml in /app/app
+7. openapi.yaml in /app/app/config_binding_service
 
 ## Testing
 You need `tox`.
