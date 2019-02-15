@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d944985_00d3b178",
+        "filename": "Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 47
+      },
+      "writtenOn": "2019-02-15T04:10:52Z",
+      "side": 1,
+      "message": "PS remove trailing whitespaces.",
+      "range": {
+        "startLine": 4,
+        "startChar": 18,
+        "endLine": 4,
+        "endChar": 19
+      },
+      "revId": "08bb5e617e4bce60e5cd8fa63c995e3d5b821b99",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": false
+    }
+  ]
+}
