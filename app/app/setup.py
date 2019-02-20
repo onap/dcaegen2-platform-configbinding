@@ -20,12 +20,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='config_binding_service',
-    version='2.2.5',
+    version='2.3.0',
     packages=find_packages(exclude=["tests.*", "tests"]),
     author="Tommy Carpenter",
     author_email="tommy@research.att.com",
     description='Service to fetch and bind configurations',
     url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
-    install_requires=["requests", "Flask", "connexion", "six"],
-    include_package_data=True
+    install_requires=["requests",
+                      "Flask",
+                      "six",
+                      "connexion[swagger-ui]"],
+    package_data={'config_binding_service': ['openapi.yaml']}
 )

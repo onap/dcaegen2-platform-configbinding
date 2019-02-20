@@ -17,16 +17,12 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
-
-import connexion
 from config_binding_service.logging import create_loggers
-
-# Entrypoint When in uwsgi
-# This create logger call used to be in the main block, but when moving to NGINX+uwsgi, this had to change. See https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
-create_loggers()
-app = connexion.App(__name__, specification_dir='.')
-app.add_api('swagger.yaml', arguments={'title': 'Config Binding Service'})
+from config_binding_service import app
 
 if __name__ == "__main__":
     # Only for debugging while developing
     app.run(host='0.0.0.0', port=10000, debug=True)
+else:
+    # Entrypoint in UWSGI
+    create_loggers()

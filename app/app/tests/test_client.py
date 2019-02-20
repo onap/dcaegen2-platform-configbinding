@@ -1,4 +1,5 @@
 from config_binding_service import client
+import pytest
 
 
 # pytest doesnt support objects in conftest
@@ -8,6 +9,15 @@ class FakeReq(object):
         self.path = "/unittest in {0}".format(__name__)
         self.host = "localhost"
         self.remote_addr = "6.6.6.6"
+
+
+# pytest doesnt support objects in conftest
+class FakeConnexion(object):
+    def __init__(self, headers, path, host, remote_addr):
+        self.headers = headers
+        self.path = path
+        self.host = host
+        self.remote_addr = remote_addr
 
 
 def test_consul_get_all_as_transaction(monkeypatch, monkeyed_requests_put):
@@ -166,3 +176,14 @@ def test_both(monkeypatch, monkeyed_get_connection_info_from_consul, expected_co
               "doubledeep": {"sodeep": {"hello": "<<WHO?>>"}}}
     test_bind_1 = client.resolve_override(config, test_rels, test_dmaap)
     assert(test_bind_1 == expected_config)
+
+
+def test_failures(monkeypatch, monkeyed_requests_put, monkeyed_requests_get):
+    monkeypatch.setattr('requests.put', monkeyed_requests_put)
+    monkeypatch.setattr('requests.get', monkeyed_requests_get)
+    monkeypatch.setattr('connexion.request', FakeConnexion({"x-onap-requestid": 123456789}, "/service_component", "mytestingmachine", "myremoteclient"))
+    assert(client.resolve("scn_exists", FakeReq(), "unit test xer") == {"foo3": "bar3"})
+    with pytest.raises(client.CantGetConfig):
+        client.resolve("scn_NOTexists", FakeReq(), "unit test xer")
+    with pytest.raises(client.CantGetConfig):
+        client.get_key("nokeyforyou", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org", FakeReq(), "unit test xer")

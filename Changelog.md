@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.3.0] - 2/20/2019
+* Expose the pretty UI at /ui
+* Convert from swagger to openapi3
+* Make tests of api more "flaskful", rename test_controller to test_api
+* Add a tox fail flag for cov<70
+
 ## [2.2.5] - 2/7/2019
 * Fix issue caused by a flake8 update
 
