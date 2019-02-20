@@ -1,4 +1,22 @@
+# ============LICENSE_START=======================================================
+# Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
+# ================================================================================
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ============LICENSE_END=========================================================
+#
+
 from config_binding_service import client
+import pytest
 
 
 # pytest doesnt support objects in conftest
@@ -8,6 +26,15 @@ class FakeReq(object):
         self.path = "/unittest in {0}".format(__name__)
         self.host = "localhost"
         self.remote_addr = "6.6.6.6"
+
+
+# pytest doesnt support objects in conftest
+class FakeConnexion(object):
+    def __init__(self, headers, path, host, remote_addr):
+        self.headers = headers
+        self.path = path
+        self.host = host
+        self.remote_addr = remote_addr
 
 
 def test_consul_get_all_as_transaction(monkeypatch, monkeyed_requests_put):
@@ -166,3 +193,14 @@ def test_both(monkeypatch, monkeyed_get_connection_info_from_consul, expected_co
               "doubledeep": {"sodeep": {"hello": "<<WHO?>>"}}}
     test_bind_1 = client.resolve_override(config, test_rels, test_dmaap)
     assert(test_bind_1 == expected_config)
+
+
+def test_failures(monkeypatch, monkeyed_requests_put, monkeyed_requests_get):
+    monkeypatch.setattr('requests.put', monkeyed_requests_put)
+    monkeypatch.setattr('requests.get', monkeyed_requests_get)
+    monkeypatch.setattr('connexion.request', FakeConnexion({"x-onap-requestid": 123456789}, "/service_component", "mytestingmachine", "myremoteclient"))
+    assert(client.resolve("scn_exists", FakeReq(), "unit test xer") == {"foo3": "bar3"})
+    with pytest.raises(client.CantGetConfig):
+        client.resolve("scn_NOTexists", FakeReq(), "unit test xer")
+    with pytest.raises(client.CantGetConfig):
+        client.get_key("nokeyforyou", "test_service_component_name.unknown.unknown.unknown.dcae.onap.org", FakeReq(), "unit test xer")

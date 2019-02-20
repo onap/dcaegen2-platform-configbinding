@@ -1,5 +1,24 @@
 # config_binding_service
 
+ ============LICENSE_START=======================================================
+ Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
+ ================================================================================
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ ============LICENSE_END=========================================================
+
+ ECOMP is a trademark and service mark of AT&T Intellectual Property.
+
+
 # Changelog
 All changes are logged in Changelog.md
 
@@ -46,14 +65,14 @@ This structure, combined with Sonar limitations, leads to an unfortunate need of
 # Development
 ## Version changes
 An unforunate consequence of the nested poms is that development changes require a version bump in several places. They are:
-1. top level pom
-2. pom in /app
-3. pom in /app/app
-4. setup.py in /app/app
-5. Changelod.md
-6. version.properties
+1. Changelod.md
+2. version.properties
+3. top level pom
+4. pom in /app
+5. pom in /app/app
+6. setup.py in /app/app
 Additionally, if the development leads to an API change,
-7. swagger.yaml in /app/app
+7. openapi.yaml in /app/app/config_binding_service
 
 ## Testing
 You need `tox`.

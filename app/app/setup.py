@@ -1,5 +1,5 @@
 # ============LICENSE_START=======================================================
-# Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,15 @@ from setuptools import setup, find_packages
 
 setup(
     name='config_binding_service',
-    version='2.2.5',
+    version='2.3.0',
     packages=find_packages(exclude=["tests.*", "tests"]),
     author="Tommy Carpenter",
     author_email="tommy@research.att.com",
     description='Service to fetch and bind configurations',
     url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
-    install_requires=["requests", "Flask", "connexion", "six"],
-    include_package_data=True
+    install_requires=["requests",
+                      "Flask",
+                      "six",
+                      "connexion[swagger-ui]"],
+    package_data={'config_binding_service': ['openapi.yaml']}
 )
