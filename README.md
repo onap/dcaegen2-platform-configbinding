@@ -34,7 +34,7 @@ There is also a "dmaap key", which is the same concept, except what gets injecte
 In addition, this service provides the capability to retrieve either the DTI events (not history) or the policies for a given service_component.
 
 # Usage
-See the Swagger spec.
+See the OpenAPI spec in `config_binding_service/openapi.yaml`. You can also see a "pretty" version of this by running the container and going to `/ui`.
 
 # Assumptions
 1. `CONSUL_HOST` is set as an environmental variable where this binding service is run. If it is not, it defaults to the Rework Consul which is probably not what you want.
@@ -56,80 +56,34 @@ X's configuration:
 }
 ```
 
-# A note about directory structure
-This project uses https://hub.docker.com/r/tiangolo/uwsgi-nginx-flask/
-This is a solution that runs a productionalized setup using NGINX+uwsgi+Flask (Flask is not meant to be run as a real webserver per their docs). This project requires the app/app structure. Tox still works from the root due to tox magic.
-
-This structure, combined with Sonar limitations, leads to an unfortunate need of having three nested poms. There is a top level pom, a tiny pom in /app, and the "main" pom in /app/app.
-
 # Development
 ## Version changes
-An unforunate consequence of the nested poms is that development changes require a version bump in several places. They are:
+Development changes require a version bump in several places. They are:
 1. Changelod.md
 2. version.properties
-3. top level pom
-4. pom in /app
-5. pom in /app/app
-6. setup.py in /app/app
+3. pom.xml
+4. setup.py
 Additionally, if the development leads to an API change,
-7. openapi.yaml in /app/app/config_binding_service
+5. config_binding_service/openapi.yaml
 
-## Testing
-You need `tox`.
+## Unit esting
+You need `tox`; then just run:
 
-To recreate the tox that the ONAP build process calls, from /app/app,  *not in a virtual env*, just run:
-```
-tox
-```
-
-For local development, there is a tox that outputs to an html website that is easier to read and navigate then xml. From the *root*, run
-```
-tox -c tox-local.ini
-```
+    tox
 
 # Deployment
 
-## Ports, HTTPS key/cert location
+## HTTPS
+Details coming soon
 
-The CBS frontend (NGINX) exposes 10000 and 443. It runs HTTP on 10000 and HTTPS on 443. 80 is also exposed by the parent Dockerfile but nothing is listening there so it can be ignored.
+## Docker
 
-The dockerimage mounts it's own self signed certificate. If deploying into a production level scenario, *you should overwrite this cert!*! It expects a key to be mounted at `/etc/nginx/ssl/nginx.key` and a cert to be mounted at `/etc/nginx/ssl/nginx.crt`. For example, a snippet from a `docker run` command:
-
-```
-... -v /host/path/to/nginx.key:/etc/nginx/ssl/nginx.key -v /host/path/to/nginx.crt:/etc/nginx/ssl/nginx.crt ...
-```
-
-These ports can be mapped to whatever extnernally. To keep the legacy behavior of prior ONAP releases of HTTP on 10000, map 10000:10000. Or, you can now make 10000 HTTPS by mapping 10000:443. This is determined by the deployment blueprint.
-
-## Non-K8, Registrator, Consul setup
-This section only pertains to a very specific setup of using Registrator and Consul (registrator to register a Consul healthcheck, and relying on Consul health checking). This section does *not* pertain to a Kubernetes deployment that uses K8 "readiness probes" instead of Consul.
-
-There is a combination of issues, rooting from a bug in registrator:
-1. https://jira.onap.org/browse/DCAEGEN2-482
-2. https://github.com/gliderlabs/registrator/issues/605
-
-That causes the Consul registration to be suffixed with ports, breaking the expected service name (`config_binding_service`), **even if** those ports are not mapped externally. That is, even if only one of the two ports (10000,443) is mapped, due to the above-linked bug, the service name will be wrong in Consul.
-
-The solution is to run the container with a series of ENV variables. If you want the healthchecks to go over HTTPS, you also need to run the latest version on `master` in registrator. The old (3 year old) release of `v7` does not allow for HTTPS healthchecks.  The below example fixes the service name, turns OFF HTTP healthchecks, and turns ON HTTPS healthchecks (only works with latest registrator):
-
-```
-ENV SERVICE_10000_IGNORE true
-ENV SERVICE_443_NAME config_binding_service
-ENV SERVICE_443_CHECK_HTTPS /healthcheck
-ENV SERVICE_443_CHECK_INTERVAL 15s
-```
-
-E.g., in Docker run terminology:
-
-```
-... -e SERVICE_10000_IGNORE=true -e SERVICE_443_NAME=config_binding_service -e SERVICE_443_CHECK_HTTPS=/healthcheck -e SERVICE_443_CHECK_INTERVAL=15s ...
-```
+    sudo docker run -dt -p 10000:10000 -e CONSUL_HOST=<YOUR_HOST>cbs:X.Y.Z
 
 If you wish to turn ON HTTP healthchecks and turn OFF HTTPS healthchecks, swith 10000 and 443 above. That will work even with `v7` of registrator (that is, `SERVICE_x_CHECK_HTTP` was already supported)
 
-## Running locally for development (no docker)
+## Locally for development (no docker)
 It is recommended that you do this step in a virtualenv.
 (set -x is Fish notaion, change for Bash etc. accordingly)
-```
-pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; ./main.py
-```
+
+    pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; ./run.py
