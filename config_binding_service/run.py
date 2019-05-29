@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # ============LICENSE_START=======================================================
 # Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
@@ -15,20 +17,16 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+import os
+from gevent.pywsgi import WSGIServer
+from config_binding_service.logging import create_loggers, DEBUG_LOGGER
+from config_binding_service import app
 
-from setuptools import setup, find_packages
 
-setup(
-    name='config_binding_service',
-    version='2.3.0',
-    packages=find_packages(exclude=["tests.*", "tests"]),
-    author="Tommy Carpenter",
-    author_email="tommy@research.att.com",
-    description='Service to fetch and bind configurations',
-    url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
-    install_requires=["requests",
-                      "Flask",
-                      "six",
-                      "connexion[swagger-ui]"],
-    package_data={'config_binding_service': ['openapi.yaml']}
-)
+def main():
+    """Entrypoint"""
+    if "PROD_LOGGING" in os.environ:
+        create_loggers()
+    DEBUG_LOGGER.debug("Starting gevent server")
+    http_server = WSGIServer(("", 10000), app)
+    http_server.serve_forever()

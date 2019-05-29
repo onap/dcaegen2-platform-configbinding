@@ -1,5 +1,5 @@
 # ============LICENSE_START=======================================================
-# Copyright (c) 2017-2018 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,23 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
-from logging import getLogger, Formatter
+import logging
 from logging.handlers import RotatingFileHandler
 from os import makedirs
 import datetime
 
+# These loggers will be overwritten with EELF logging when running in Docker
+_AUDIT_LOGGER = logging.getLogger("defaultlogger")
+_ERROR_LOGGER = logging.getLogger("defaultlogger")
+_METRICS_LOGGER = logging.getLogger("defaultlogger")
 
-_AUDIT_LOGGER = getLogger("defaultlogger")
-_ERROR_LOGGER = getLogger("defaultlogger")
-_METRICS_LOGGER = getLogger("defaultlogger")
+# Set up debug logger
+DEBUG_LOGGER = logging.getLogger("defaultlogger")
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s")
+handler.setFormatter(formatter)
+DEBUG_LOGGER.addHandler(handler)
+DEBUG_LOGGER.setLevel(logging.DEBUG)
 
 
 def _create_logger(name, logfile):
@@ -33,13 +41,28 @@ def _create_logger(name, logfile):
     https://docs.python.org/3/library/logging.handlers.html
     what's with the non-pythonic naming in these stdlib methods? Shameful.
     """
-    logger = getLogger(name)
-    file_handler = RotatingFileHandler(logfile,
-                                       maxBytes=10000000, backupCount=2)  # 10 meg with one backup..
-    formatter = Formatter('%(message)s')
+    logger = logging.getLogger(name)
+    file_handler = RotatingFileHandler(logfile, maxBytes=10000000, backupCount=2)  # 10 meg with one backup..
+    formatter = logging.Formatter("%(message)s")
     file_handler.setFormatter(formatter)
     logger.setLevel("DEBUG")
     logger.addHandler(file_handler)
+    return logger
+
+
+# Public
+
+
+def get_module_logger(mod_name):
+    """
+    To use this, do logger = get_module_logger(__name__)
+    """
+    logger = logging.getLogger(mod_name)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s [%(name)-12s] %(levelname)-8s %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
     return logger
 
 
@@ -52,19 +75,19 @@ def create_loggers():
 
     # create the audit log
     aud_file = "/opt/logs/audit.log"
-    open(aud_file, 'a').close()  # this is like "touch"
+    open(aud_file, "a").close()  # this is like "touch"
     global _AUDIT_LOGGER
     _AUDIT_LOGGER = _create_logger("config_binding_service_audit", aud_file)
 
     # create the error log
     err_file = "/opt/logs/error.log"
-    open(err_file, 'a').close()  # this is like "touch"
+    open(err_file, "a").close()  # this is like "touch"
     global _ERROR_LOGGER
     _ERROR_LOGGER = _create_logger("config_binding_service_error", err_file)
 
     # create the metrics log
     met_file = "/opt/logs/metrics.log"
-    open(met_file, 'a').close()  # this is like "touch"
+    open(met_file, "a").close()  # this is like "touch"
     global _METRICS_LOGGER
     _METRICS_LOGGER = _create_logger("config_binding_service_metrics", met_file)
 
@@ -106,17 +129,21 @@ def audit(raw_request, bts, xer, rcode, calling_mod, msg="n/a"):
     """
     ets = utc()
 
-    _AUDIT_LOGGER.info("{bts}|{ets}|{xer}||n/a||{path}||{status}|{rcode}|||INFO||{servip}|{et}|config_binding_service|{clientip}|{calling_mod}|||||||{msg}".format(
-        bts=bts.isoformat(),
-        ets=ets.isoformat(),
-        xer=xer, rcode=rcode,
-        path=raw_request.path.split("/")[1],
-        status="COMPLETE" if rcode < 400 else "ERROR",
-        servip=raw_request.host.split(":")[0],
-        et=int((ets - bts).microseconds / 1000),  # supposed to be in milleseconds
-        clientip=raw_request.remote_addr,
-        calling_mod=calling_mod, msg=msg
-    ))
+    _AUDIT_LOGGER.info(
+        "{bts}|{ets}|{xer}||n/a||{path}||{status}|{rcode}|||INFO||{servip}|{et}|config_binding_service|{clientip}|{calling_mod}|||||||{msg}".format(
+            bts=bts.isoformat(),
+            ets=ets.isoformat(),
+            xer=xer,
+            rcode=rcode,
+            path=raw_request.path.split("/")[1],
+            status="COMPLETE" if rcode < 400 else "ERROR",
+            servip=raw_request.host.split(":")[0],
+            et=int((ets - bts).microseconds / 1000),  # supposed to be in milleseconds
+            clientip=raw_request.remote_addr,
+            calling_mod=calling_mod,
+            msg=msg,
+        )
+    )
 
 
 def error(raw_request, xer, severity, ecode, tgt_entity="n/a", tgt_path="n/a", msg="n/a", adv_msg="n/a"):
@@ -140,16 +167,19 @@ def error(raw_request, xer, severity, ecode, tgt_entity="n/a", tgt_path="n/a", m
     """
     ets = utc()
 
-    _ERROR_LOGGER.error("{ets}|{xer}|n/a|{path}||{tge}|{tgp}|{sev}|{ecode}|{msg}|{amsg}".format(
-        ets=ets,
-        xer=xer,
-        path=raw_request.path.split("/")[1],
-        tge=tgt_entity,
-        tgp=tgt_path,
-        sev=severity,
-        ecode=ecode,
-        msg=msg,
-        amsg=adv_msg))
+    _ERROR_LOGGER.error(
+        "{ets}|{xer}|n/a|{path}||{tge}|{tgp}|{sev}|{ecode}|{msg}|{amsg}".format(
+            ets=ets,
+            xer=xer,
+            path=raw_request.path.split("/")[1],
+            tge=tgt_entity,
+            tgp=tgt_path,
+            sev=severity,
+            ecode=ecode,
+            msg=msg,
+            amsg=adv_msg,
+        )
+    )
 
 
 def metrics(raw_request, bts, xer, target, target_path, rcode, calling_mod, msg="n/a"):
@@ -188,17 +218,20 @@ def metrics(raw_request, bts, xer, target, target_path, rcode, calling_mod, msg=
     """
     ets = utc()
 
-    _METRICS_LOGGER.info("{bts}|{ets}|{xer}||n/a||{path}||{tge}|{tgp}|{status}|{rcode}|||INFO||{servip}|{et}|config_binding_service|{clientip}|{calling_mod}|||n/a|||||{msg}".format(
-        bts=bts.isoformat(),
-        ets=ets.isoformat(),
-        xer=xer,
-        path=raw_request.path.split("/")[1],
-        tge=target,
-        tgp=target_path,
-        status="COMPLETE" if rcode < 400 else "ERROR",
-        rcode=rcode,
-        servip=raw_request.host.split(":")[0],
-        et=int((ets - bts).microseconds / 1000),  # supposed to be in milleseconds
-        clientip=raw_request.remote_addr,
-        calling_mod=calling_mod, msg=msg
-    ))
+    _METRICS_LOGGER.info(
+        "{bts}|{ets}|{xer}||n/a||{path}||{tge}|{tgp}|{status}|{rcode}|||INFO||{servip}|{et}|config_binding_service|{clientip}|{calling_mod}|||n/a|||||{msg}".format(
+            bts=bts.isoformat(),
+            ets=ets.isoformat(),
+            xer=xer,
+            path=raw_request.path.split("/")[1],
+            tge=target,
+            tgp=target_path,
+            status="COMPLETE" if rcode < 400 else "ERROR",
+            rcode=rcode,
+            servip=raw_request.host.split(":")[0],
+            et=int((ets - bts).microseconds / 1000),  # supposed to be in milleseconds
+            clientip=raw_request.remote_addr,
+            calling_mod=calling_mod,
+            msg=msg,
+        )
+    )
