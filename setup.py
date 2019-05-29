@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ============LICENSE_START=======================================================
 # Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
@@ -17,12 +15,18 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
-from config_binding_service.logging import create_loggers
-from config_binding_service import app
 
-if __name__ == "__main__":
-    # Only for debugging while developing
-    app.run(host='0.0.0.0', port=10000, debug=True)
-else:
-    # Entrypoint in UWSGI
-    create_loggers()
+from setuptools import setup, find_packages
+
+setup(
+    name="config_binding_service",
+    version="2.4.0",
+    packages=find_packages(exclude=["tests.*", "tests"]),
+    author="Tommy Carpenter",
+    author_email="tommy@research.att.com",
+    description="Service to fetch and bind configurations",
+    url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
+    entry_points={"console_scripts": ["run.py=config_binding_service.run:main"]},
+    install_requires=["requests", "Flask", "six", "gevent", "connexion[swagger-ui]"],
+    package_data={"config_binding_service": ["openapi.yaml"]},
+)
