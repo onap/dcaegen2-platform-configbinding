@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ============LICENSE_START=======================================================
 # Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
@@ -18,22 +16,18 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 import os
-from gevent.pywsgi import WSGIServer
-from config_binding_service.logging import create_loggers, DEBUG_LOGGER
-from config_binding_service import app
-from config_binding_service import utils
+from config_binding_service import exceptions
 
 
-def main():
-    """Entrypoint"""
-    if "PROD_LOGGING" in os.environ:
-        create_loggers()
-    key_loc, cert_loc = utils.get_https_envs()
-    if key_loc:
-        DEBUG_LOGGER.debug("Starting gevent server as HTTPS")
-        http_server = WSGIServer(("", 10443), app, keyfile=key_loc, certfile=cert_loc)
-    else:
-        DEBUG_LOGGER.debug("Starting gevent server as HTTP")
-        http_server = WSGIServer(("", 10000), app)
-
-    http_server.serve_forever()
+def get_https_envs():
+    if "USE_HTTPS" in os.environ and os.environ["USE_HTTPS"] == "1":
+        try:
+            key_loc = os.environ["HTTPS_KEY_PATH"]
+            cert_loc = os.environ["HTTPS_CERT_PATH"]
+            # We check whether both these files exist. Future fail fast optimization: check that they're valid too
+            if not (os.path.isfile(key_loc) and os.path.isfile(cert_loc)):
+                raise exceptions.BadHTTPSEnvs()
+            return key_loc, cert_loc
+        except KeyError:
+            raise exceptions.BadHTTPSEnvs()
+    return None, None

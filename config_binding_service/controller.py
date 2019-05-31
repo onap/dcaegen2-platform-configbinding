@@ -21,7 +21,8 @@ import requests
 import connexion
 import uuid
 from flask import Response
-from config_binding_service import client, get_consul_uri
+from config_binding_service import client, exceptions
+from config_binding_service import get_consul_uri
 from config_binding_service.logging import audit, utc, error, metrics
 
 
@@ -32,9 +33,9 @@ def _get_helper(json_expecting_func, **kwargs):
     try:
         payload = json_expecting_func(**kwargs)
         response, status_code, mimetype = json.dumps(payload), 200, "application/json"
-    except client.BadRequest as exc:
+    except exceptions.BadRequest as exc:
         response, status_code, mimetype = exc.response, exc.code, "text/plain"
-    except client.CantGetConfig as exc:
+    except exceptions.CantGetConfig as exc:
         response, status_code, mimetype = exc.response, exc.code, "text/plain"
     except Exception:
         response, status_code, mimetype = "Unknown error", 500, "text/plain"
@@ -59,7 +60,9 @@ def bind_all(service_component_name):
     """
     xer = _get_or_generate_xer(connexion.request)
     bts = utc()
-    response, status_code, mimetype = _get_helper(client.resolve_all, service_component_name=service_component_name, raw_request=connexion.request, xer=xer)
+    response, status_code, mimetype = _get_helper(
+        client.resolve_all, service_component_name=service_component_name, raw_request=connexion.request, xer=xer
+    )
     audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
     # Even though some older components might be using the ecomp name, we return the proper one
     return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
@@ -71,7 +74,9 @@ def bind_config_for_scn(service_component_name):
     """
     xer = _get_or_generate_xer(connexion.request)
     bts = utc()
-    response, status_code, mimetype = _get_helper(client.resolve, service_component_name=service_component_name, raw_request=connexion.request, xer=xer)
+    response, status_code, mimetype = _get_helper(
+        client.resolve, service_component_name=service_component_name, raw_request=connexion.request, xer=xer
+    )
     audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
     return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
 
@@ -83,7 +88,9 @@ def get_key(key, service_component_name):
     """
     xer = _get_or_generate_xer(connexion.request)
     bts = utc()
-    response, status_code, mimetype = _get_helper(client.get_key, key=key, service_component_name=service_component_name, raw_request=connexion.request, xer=xer)
+    response, status_code, mimetype = _get_helper(
+        client.get_key, key=key, service_component_name=service_component_name, raw_request=connexion.request, xer=xer
+    )
     audit(connexion.request, bts, xer, status_code, __name__, "called for component {0}".format(service_component_name))
     return Response(response=response, status=status_code, mimetype=mimetype, headers={"x-onap-requestid": xer})
 
@@ -92,7 +99,8 @@ def healthcheck():
     """
     CBS Healthcheck
     """
-    xer = _get_or_generate_xer(connexion.request)
+    req = connexion.request
+    xer = _get_or_generate_xer(req)
     path = "v1/catalog/service/config_binding_service"
     bts = utc()
     res = requests.get("{0}/{1}".format(get_consul_uri(), path))
@@ -102,7 +110,8 @@ def healthcheck():
     else:
         msg = "CBS is alive but cannot reach Consul"
         # treating this as a WARN because this could be a temporary network glitch. Also per EELF guidelines this is a 200 ecode (availability)
-        error(connexion.request, xer, "WARN", 200, tgt_entity="Consul", tgt_path="/v1/catalog/service/config_binding_service", msg=msg)
-    metrics(connexion.request, bts, xer, "Consul", path, res.status_code, __name__, msg="Checking Consul connectivity during CBS healthcheck, {0}".format(msg))
+        error(req, xer, "WARN", 200, tgt_entity="Consul", tgt_path="/v1/catalog/service/config_binding_service", msg=msg)
+    msg = ("Checking Consul connectivity during CBS healthcheck, {0}".format(msg),)
+    metrics(connexion.request, bts, xer, "Consul", path, res.status_code, __name__, msg=msg)
     audit(connexion.request, bts, xer, status, __name__, msg=msg)
     return Response(response=msg, status=status)
