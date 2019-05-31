@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # ============LICENSE_START=======================================================
 # Copyright (c) 2017-2019 AT&T Intellectual Property. All rights reserved.
 # ================================================================================
@@ -17,23 +15,27 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+import pytest
+from config_binding_service import utils, exceptions
 import os
-from gevent.pywsgi import WSGIServer
-from config_binding_service.logging import create_loggers, DEBUG_LOGGER
-from config_binding_service import app
-from config_binding_service import utils
 
 
-def main():
-    """Entrypoint"""
-    if "PROD_LOGGING" in os.environ:
-        create_loggers()
+def test_https_flags(monkeypatch):
+    """test getting https flags"""
     key_loc, cert_loc = utils.get_https_envs()
-    if key_loc:
-        DEBUG_LOGGER.debug("Starting gevent server as HTTPS")
-        http_server = WSGIServer(("", 10443), app, keyfile=key_loc, certfile=cert_loc)
-    else:
-        DEBUG_LOGGER.debug("Starting gevent server as HTTP")
-        http_server = WSGIServer(("", 10000), app)
+    assert key_loc is None and cert_loc is None
 
-    http_server.serve_forever()
+    monkeypatch.setenv("USE_HTTPS", "1")
+    with pytest.raises(exceptions.BadHTTPSEnvs):
+        utils.get_https_envs()
+
+    cur_dir = os.path.dirname(os.path.realpath(__file__))
+    monkeypatch.setenv("HTTPS_KEY_PATH", "{0}/fixtures/test_k.key".format(cur_dir))
+    monkeypatch.setenv("HTTPS_CERT_PATH", "{0}/fixtures/NONEXISTENT".format(cur_dir))
+    with pytest.raises(exceptions.BadHTTPSEnvs):
+        utils.get_https_envs()
+
+    monkeypatch.setenv("HTTPS_CERT_PATH", "{0}/fixtures/test_c.crt".format(cur_dir))
+    key_loc, cert_loc = utils.get_https_envs()
+    assert key_loc is not None
+    assert cert_loc is not None

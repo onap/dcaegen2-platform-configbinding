@@ -25,36 +25,13 @@ import requests
 import six
 from config_binding_service import get_consul_uri
 from config_binding_service.logging import utc, metrics
+from config_binding_service import exceptions
 
 
 CONSUL = get_consul_uri()
 
 template_match_rels = re.compile("\{{2}([^\}\{]*)\}{2}")
 template_match_dmaap = re.compile("<{2}([^><]*)>{2}")
-
-###
-# Cusom Exception
-###
-
-
-class CantGetConfig(Exception):
-    """
-    Represents an exception where a required key in consul isn't there
-    """
-
-    def __init__(self, code, response):
-        self.code = code
-        self.response = response
-
-
-class BadRequest(Exception):
-    """
-    Exception to be raised when the user tried to do something they shouldn't
-    """
-
-    def __init__(self, response):
-        self.code = 400
-        self.response = response
 
 
 ###
@@ -67,24 +44,19 @@ def _consul_get_all_as_transaction(service_component_name, raw_request, xer):
     Use Consul's transaction API to get all keys of the form service_component_name:*
     Return a dict with all the values decoded
     """
-    payload = [
-        {
-            "KV": {
-                "Verb": "get-tree",
-                "Key": service_component_name,
-            }
-        }]
+    payload = [{"KV": {"Verb": "get-tree", "Key": service_component_name}}]
 
     bts = utc()
     response = requests.put("{0}/v1/txn".format(CONSUL), json=payload)
-    metrics(raw_request, bts, xer, "Consul", "/v1/txn".format(service_component_name), response.status_code, __name__, msg="Retrieving Consul transaction for all keys for {0}".format(service_component_name))
+    msg = "Retrieving Consul transaction for all keys for {0}".format(service_component_name)
+    metrics(raw_request, bts, xer, "Consul", "/v1/txn", response.status_code, __name__, msg=msg)
 
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as exc:
-        raise CantGetConfig(exc.response.status_code, exc.response.text)
+        raise exceptions.CantGetConfig(exc.response.status_code, exc.response.text)
 
-    result = json.loads(response.text)['Results']
+    result = json.loads(response.text)["Results"]
 
     new_res = {}
     for res in result:
@@ -96,7 +68,7 @@ def _consul_get_all_as_transaction(service_component_name, raw_request, xer):
             new_res[key] = "INVALID JSON"  # TODO, should we just include the original value somehow?
 
     if service_component_name not in new_res:
-        raise CantGetConfig(404, "")
+        raise exceptions.CantGetConfig(404, "")
 
     return new_res
 
@@ -249,9 +221,11 @@ def resolve_all(service_component_name, raw_request, xer):
     returnk = {}
 
     # replace the config with the resolved config
-    returnk["config"] = resolve_override(allk[service_component_name],
-                                         allk.get("{0}:rels".format(service_component_name), []),
-                                         allk.get("{0}:dmaap".format(service_component_name), {}))
+    returnk["config"] = resolve_override(
+        allk[service_component_name],
+        allk.get("{0}:rels".format(service_component_name), []),
+        allk.get("{0}:dmaap".format(service_component_name), {}),
+    )
 
     # concatenate the items
     for k in allk:
@@ -266,7 +240,7 @@ def resolve_all(service_component_name, raw_request, xer):
             elif ":policies/items" in k:
                 returnk["policies"]["items"].append(allk[k])
         else:
-            if not(k == service_component_name or k.endswith(":rels") or k.endswith(":dmaap")):
+            if not (k == service_component_name or k.endswith(":rels") or k.endswith(":dmaap")):
                 # this would blow up if you had a key in consul without a : but this shouldnt happen
                 suffix = k.split(":")[1]
                 returnk[suffix] = allk[k]
@@ -281,17 +255,19 @@ def get_key(key, service_component_name, raw_request, xer):
     raw_request and xer are needed to form the correct metrics log
     """
     if key == "policies":
-        raise BadRequest(
-            ":policies is a complex folder and should be retrieved using the service_component_all API")
+        raise exceptions.BadRequest(
+            ":policies is a complex folder and should be retrieved using the service_component_all API"
+        )
 
     bts = utc()
     path = "v1/kv/{0}:{1}".format(service_component_name, key)
     response = requests.get("{0}/{1}".format(CONSUL, path))
-    metrics(raw_request, bts, xer, "Consul", path, response.status_code, __name__, msg="Retrieving single Consul key {0} for {1}".format(key, service_component_name))
+    msg = "Retrieving single Consul key {0} for {1}".format(key, service_component_name)
+    metrics(raw_request, bts, xer, "Consul", path, response.status_code, __name__, msg=msg)
 
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError as exc:
-        raise CantGetConfig(exc.response.status_code, exc.response.text)
+        raise exceptions.CantGetConfig(exc.response.status_code, exc.response.text)
     rest = json.loads(response.text)[0]
     return json.loads(base64.b64decode(rest["Value"]).decode("utf-8"))
