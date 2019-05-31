@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.5.0] - 6/5/2019
+* Add back HTTPS support and a flag to enable it
+* Move exceptions into a common file
+* Run python BLACK formatter
+
 ## [2.4.0] - 5/29/2019
 * Switch from NGINX to Gevent. The CBS is not CPU bound, and doesn't make any non-network blocking calls, so we don't really need a threaded server; an asyncronous event loop is fine. Gevent handles the patching of requests. The benefits of this are twofold; it will be easier to add https/http switching support, and it will be much easier to run as non-root in the Dockerfile. Moreover, it's "as fast" because again the CBS is not at all CPU bound so threading really doesn't buy anything over an async loop. This also has the practical benefit of 1 pom.xml instead of 3!
 

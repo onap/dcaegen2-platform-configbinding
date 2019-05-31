@@ -15,18 +15,19 @@
 # ============LICENSE_END=========================================================
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
+import os
+from config_binding_service import exceptions
 
-from setuptools import setup, find_packages
 
-setup(
-    name="config_binding_service",
-    version="2.5.0",
-    packages=find_packages(exclude=["tests.*", "tests"]),
-    author="Tommy Carpenter",
-    author_email="tommy@research.att.com",
-    description="Service to fetch and bind configurations",
-    url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
-    entry_points={"console_scripts": ["run.py=config_binding_service.run:main"]},
-    install_requires=["requests", "Flask", "six", "gevent", "connexion[swagger-ui]"],
-    package_data={"config_binding_service": ["openapi.yaml"]},
-)
+def get_https_envs():
+    if "USE_HTTPS" in os.environ and os.environ["USE_HTTPS"] == "1":
+        try:
+            key_loc = os.environ["HTTPS_KEY_PATH"]
+            cert_loc = os.environ["HTTPS_CERT_PATH"]
+            # We check whether both these files exist. Future fail fast optimization: check that they're valid too
+            if not (os.path.isfile(key_loc) and os.path.isfile(cert_loc)):
+                raise exceptions.BadHTTPSEnvs()
+            return key_loc, cert_loc
+        except KeyError:
+            raise exceptions.BadHTTPSEnvs()
+    return None, None

@@ -16,17 +16,30 @@
 #
 # ECOMP is a trademark and service mark of AT&T Intellectual Property.
 
-from setuptools import setup, find_packages
 
-setup(
-    name="config_binding_service",
-    version="2.5.0",
-    packages=find_packages(exclude=["tests.*", "tests"]),
-    author="Tommy Carpenter",
-    author_email="tommy@research.att.com",
-    description="Service to fetch and bind configurations",
-    url="https://gerrit.onap.org/r/#/admin/projects/dcaegen2/platform/configbinding",
-    entry_points={"console_scripts": ["run.py=config_binding_service.run:main"]},
-    install_requires=["requests", "Flask", "six", "gevent", "connexion[swagger-ui]"],
-    package_data={"config_binding_service": ["openapi.yaml"]},
-)
+class BadHTTPSEnvs(BaseException):
+    """
+    used for bad http setup
+    """
+
+    pass
+
+
+class CantGetConfig(Exception):
+    """
+    Represents an exception where a required key in consul isn't there
+    """
+
+    def __init__(self, code, response):
+        self.code = code
+        self.response = response
+
+
+class BadRequest(Exception):
+    """
+    Exception to be raised when the user tried to do something they shouldn't
+    """
+
+    def __init__(self, response):
+        self.code = 400
+        self.response = response

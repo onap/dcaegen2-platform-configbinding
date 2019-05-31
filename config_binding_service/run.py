@@ -21,12 +21,20 @@ import os
 from gevent.pywsgi import WSGIServer
 from config_binding_service.logging import create_loggers, DEBUG_LOGGER
 from config_binding_service import app
+from config_binding_service import utils
 
 
 def main():
     """Entrypoint"""
     if "PROD_LOGGING" in os.environ:
         create_loggers()
-    DEBUG_LOGGER.debug("Starting gevent server")
-    http_server = WSGIServer(("", 10000), app)
+    key_loc, cert_loc = utils.get_https_envs()
+    print((key_loc, cert_loc))
+    if key_loc:
+        DEBUG_LOGGER.debug("Starting gevent server as HTTPS")
+        http_server = WSGIServer(("", 10443), app, keyfile=key_loc, certfile=cert_loc)
+    else:
+        DEBUG_LOGGER.debug("Starting gevent server as HTTP")
+        http_server = WSGIServer(("", 10000), app)
+
     http_server.serve_forever()

@@ -74,16 +74,39 @@ You need `tox`; then just run:
 # Deployment
 
 ## HTTPS
-Details coming soon
+
+The default non HTTPS port is 10000. The default HTTPS port is 10443.
+
+To deploy with HTTPS, you must then set the other three ENVs:
+1. `USE_HTTPS=1` (any other value, HTTPS is not used)
+2. `HTTPS_KEY_PATH`: path to the `.key` file (including the filename)
+3. `HTTPS_CERT_PATH`: path to the .crt file (including the filename)
+
+If `USE_HTTPS` is set, but the other two are not supplied or do not exist, the CBS will crash immediately.
+
+For testing, I created a self signed cert with
+
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/k.key -out /tmp/c.crt -subj "/C=US/ST=NJ/L=foo/O=ONAP/OU=ONAP/CN=configbinding"
 
 ## Docker
+### Without HTTPS
 
     sudo docker run -dt -p 10000:10000 -e CONSUL_HOST=<YOUR_HOST>cbs:X.Y.Z
 
-If you wish to turn ON HTTP healthchecks and turn OFF HTTPS healthchecks, swith 10000 and 443 above. That will work even with `v7` of registrator (that is, `SERVICE_x_CHECK_HTTP` was already supported)
+###With HTTPS
+Mount the key and crt into `/opt/`; in theory other paths should work if the ENV is set correctly, but this one has been tested and `/opt` is gauranteed to exist in the container because that's where the logs go.
+
+
+    docker run -dt -p 10443:10443 -e CONSUL_HOST=<YOUR_HOST> -e USE_HTTPS=1 -e HTTPS_KEY_PATH=/opt/k.key -e HTTPS_CERT_PATH=/opt/c.crt -v /tmp/k.key:/opt/k.key -v /tmp/c.crt:/opt/c.crt cbs:X.Y.
+
 
 ## Locally for development (no docker)
+###Without HTTPS
 It is recommended that you do this step in a virtualenv.
 (set -x is Fish notaion, change for Bash etc. accordingly)
 
-    pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; ./run.py
+    pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; run.py
+
+###With HTTPS
+
+    pip install --ignore-installed .; set -x CONSUL_HOST <YOUR_HOST>; set -x USE_HTTPS 1; set -x USE_HTTPS 1; set -x HTTPS_KEY_PATH /tmp/k.key; set -x HTTPS_CERT_PATH /tmp/c.crt; run.py
