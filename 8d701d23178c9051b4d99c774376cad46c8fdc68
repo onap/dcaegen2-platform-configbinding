@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8d9f89b_3ea39b5e",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 511
+      },
+      "writtenOn": "2019-05-31T11:41:18Z",
+      "side": 1,
+      "message": "Try \"org.onap.oparent\"",
+      "revId": "8d701d23178c9051b4d99c774376cad46c8fdc68",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1804f22_86fb831a",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 511
+      },
+      "writtenOn": "2019-05-31T11:41:18Z",
+      "side": 1,
+      "message": "Try \"oparent\"",
+      "revId": "8d701d23178c9051b4d99c774376cad46c8fdc68",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b435a17_3d09a13f",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 511
+      },
+      "writtenOn": "2019-05-31T11:41:18Z",
+      "side": 1,
+      "message": "Try \"1.2.0\"",
+      "revId": "8d701d23178c9051b4d99c774376cad46c8fdc68",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
