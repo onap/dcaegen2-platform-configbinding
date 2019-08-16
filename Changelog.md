@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.5.2] - 8/16/2019
+* Switch to py37 for unit testing and docker now that LF supports it under the python jjb
+
 ## [2.5.1] - 6/17/2019
 * Switch to alpine base
 * use a non root user
