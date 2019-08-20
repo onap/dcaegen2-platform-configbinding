@@ -47,7 +47,6 @@ case $MVN_PHASE in
 clean)
   echo "==> clean phase script"
   clean_templated_files
-  clean_tox_files
   rm -rf ./venv-* ./*.wgn ./site
   ;;
 generate-sources)
@@ -59,7 +58,6 @@ compile)
   ;;
 test)
   echo "==> test phase script"
-  run_tox_test
   ;;
 package)
   echo "==> package phase script"
