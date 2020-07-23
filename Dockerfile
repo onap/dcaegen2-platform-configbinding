@@ -1,20 +1,23 @@
-FROM python:3.7-alpine
+FROM python:3.8.2-alpine3.11
 MAINTAINER tommy@research.att.com
-
-COPY . /tmp
-WORKDIR /tmp
 
 EXPOSE 10000
 
 # it is an ONAP requirement to make, and switch to, a non root user
-ENV CBSUSER cbs
-RUN addgroup -S $CBSUSER && adduser -S -G $CBSUSER $CBSUSER 
+ARG user=onap
+ARG group=onap
+RUN addgroup -S $group && adduser -S -D -h /home/$user $user $group && \
+    chown -R $user:$group /home/$user &&  \
+    mkdir /var/log/$user && \
+    chown -R $user:$group /var/log/$user && \
+    mkdir /app && \
+    chown -R $user:$group /app
+WORKDIR /app
 
-# create logs dir and install
+COPY . /app
+
 # alpine does not come with GCC like the standard "python" docker base does, which the install needs, see https://wiki.alpinelinux.org/wiki/GCC
-RUN apk add build-base && \ 
-    mkdir -p /opt/logs/ && \
-    chown $CBSUSER:$CBSUSER /opt/logs && \
+RUN apk add build-base libffi-dev && \ 
     pip install --upgrade pip && \
     pip install .
 
@@ -22,5 +25,5 @@ RUN apk add build-base && \
 ENV PROD_LOGGING 1
 
 # Run the application
-USER $CBSUSER
+USER $user
 CMD run.py

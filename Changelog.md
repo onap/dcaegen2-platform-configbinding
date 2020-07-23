@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.5.3] - 7/22/2020
+* Run in Python 3.8
+* Add py38 for unit testing
+* Run as "onap" user
+
 ## [2.5.2] - 8/16/2019
 * Switch to py37 for unit testing and docker now that LF supports it under the python jjb
 
