@@ -1,0 +1,8 @@
+distribution_type: 'container'
+container_release_tag: '2.5.3'
+project: 'dcaegen2/platform/configbinding'
+log_dir: 'dcaegen2-platform-configbinding-master-release-version-java-daily/961'
+ref: df9877a76ce131f9ed1cc1f187847bc5ef5cf814
+containers:
+    - name: 'org.onap.dcaegen2.platform.configbinding'
+      version: '2.5.3-SNAPSHOT-20200909T205051Z'
