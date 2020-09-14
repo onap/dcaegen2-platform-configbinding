@@ -1,0 +1,8 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+1: Jessica Wagantall <jwagantall@linuxfoundation.org>
+Code-Review+2: Tony Hansen <tony@att.com>
+Submitted-by: Tony Hansen <tony@att.com>
+Submitted-at: Mon, 14 Sep 2020 22:25:06 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/dcaegen2/platform/configbinding/+/112597
+Project: dcaegen2/platform/configbinding
+Branch: refs/heads/master
