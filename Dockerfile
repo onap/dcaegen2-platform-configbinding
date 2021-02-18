@@ -1,4 +1,4 @@
-FROM python:3.8.2-alpine3.11
+FROM nexus3.onap.org:10001/onap/integration-python:latest
 MAINTAINER tommy@research.att.com
 
 EXPOSE 10000
