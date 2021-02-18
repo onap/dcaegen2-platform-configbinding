@@ -1,4 +1,4 @@
-FROM python:3.8.2-alpine3.11
+FROM nexus3.onap.org:10001/onap/integration-python:latest
 MAINTAINER tommy@research.att.com
 
 EXPOSE 10000
@@ -6,11 +6,13 @@ EXPOSE 10000
 # it is an ONAP requirement to make, and switch to, a non root user
 ARG user=onap
 ARG group=onap
-RUN addgroup -S $group && adduser -S -D -h /home/$user $user $group && \
+
+USER root
+RUN mkdir -p /home/$user && \
     chown -R $user:$group /home/$user &&  \
-    mkdir /var/log/$user && \
+    mkdir -p /var/log/$user && \
     chown -R $user:$group /var/log/$user && \
-    mkdir /app && \
+    mkdir -p /app && \
     chown -R $user:$group /app
 WORKDIR /app
 
