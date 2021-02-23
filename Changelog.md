@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.5.3] - 2/23/2021
+* Change base image to one provided by integration team
+* Run in Python 3.9
+
 ## [2.5.3] - 7/22/2020
 * Run in Python 3.8
 * Add py38 for unit testing
