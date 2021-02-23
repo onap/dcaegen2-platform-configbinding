@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a0b304c_a8a33b58",
+        "filename": "tox.ini",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7352
+      },
+      "writtenOn": "2021-02-23T21:54:28Z",
+      "side": 1,
+      "message": "should it still be kept?",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 14
+      },
+      "revId": "2696f71bd5ed351751fb06fa1aa375d5158cb19f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
