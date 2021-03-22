@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b17cb8f6_57343910",
+        "filename": "Changelog.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2021-03-22T22:28:51Z",
+      "side": 1,
+      "message": "2.5.4",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 9
+      },
+      "revId": "2696f71bd5ed351751fb06fa1aa375d5158cb19f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1a0b304c_a8a33b58",
         "filename": "tox.ini",
         "patchSetId": 8
@@ -13,6 +36,30 @@
       "writtenOn": "2021-02-23T21:54:28Z",
       "side": 1,
       "message": "should it still be kept?",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 20,
+        "endChar": 14
+      },
+      "revId": "2696f71bd5ed351751fb06fa1aa375d5158cb19f",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9a43b18_6ce183f4",
+        "filename": "tox.ini",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 93
+      },
+      "writtenOn": "2021-03-22T22:28:51Z",
+      "side": 1,
+      "message": "py37 can be removed",
+      "parentUuid": "1a0b304c_a8a33b58",
       "range": {
         "startLine": 20,
         "startChar": 10,
