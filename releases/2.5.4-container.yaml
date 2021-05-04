@@ -1,0 +1,8 @@
+distribution_type: 'container'
+container_release_tag: '2.5.4'
+project: 'dcaegen2/platform/configbinding'
+log_dir: 'dcaegen2-platform-configbinding-master-release-version-java-daily/1197'
+ref: ea8f93acb6cac13c70a30492b41431182de76984
+containers:
+    - name: 'org.onap.dcaegen2.platform.configbinding'
+      version: '2.5.4-SNAPSHOT-20210503T204904Z'
